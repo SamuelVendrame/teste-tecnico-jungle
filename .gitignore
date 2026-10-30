@@ -32,3 +32,6 @@ playwright-report/
 
 # lighthouse
 lighthouse/reports/*.html
+
+# tanstack router cache
+.tanstack/
