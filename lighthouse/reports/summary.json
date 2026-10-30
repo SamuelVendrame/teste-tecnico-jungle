@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-30T17:35:16.364Z",
+  "generatedAt": "2026-10-30T17:57:18.091Z",
   "baseUrl": "http://localhost:4173",
   "runs": 3,
   "tools": {
@@ -17,7 +17,7 @@
         "performance": 78,
         "accessibility": 100,
         "best-practices": 100,
-        "seo": 92
+        "seo": 100
       },
       "runs": {
         "performance": [
@@ -36,15 +36,15 @@
           100
         ],
         "seo": [
-          92,
-          92,
-          92
+          100,
+          100,
+          100
         ]
       },
       "metricsMedian": {
-        "lcpMs": 5719,
+        "lcpMs": 5721,
         "cls": 0.017,
-        "tbtMs": 126
+        "tbtMs": 105
       }
     },
     {
@@ -52,16 +52,16 @@
       "url": "http://localhost:4173/",
       "profile": "desktop",
       "median": {
-        "performance": 98,
+        "performance": 99,
         "accessibility": 100,
         "best-practices": 100,
-        "seo": 92
+        "seo": 100
       },
       "runs": {
         "performance": [
           98,
           99,
-          98
+          99
         ],
         "accessibility": [
           100,
@@ -74,13 +74,13 @@
           100
         ],
         "seo": [
-          92,
-          92,
-          92
+          100,
+          100,
+          100
         ]
       },
       "metricsMedian": {
-        "lcpMs": 1141,
+        "lcpMs": 977,
         "cls": 0.001,
         "tbtMs": 0
       }
@@ -93,7 +93,7 @@
         "performance": 81,
         "accessibility": 100,
         "best-practices": 100,
-        "seo": 92
+        "seo": 100
       },
       "runs": {
         "performance": [
@@ -112,15 +112,15 @@
           100
         ],
         "seo": [
-          92,
-          92,
-          92
+          100,
+          100,
+          100
         ]
       },
       "metricsMedian": {
-        "lcpMs": 5078,
+        "lcpMs": 5069,
         "cls": 0.015,
-        "tbtMs": 69
+        "tbtMs": 50
       }
     },
     {
@@ -131,7 +131,7 @@
         "performance": 98,
         "accessibility": 100,
         "best-practices": 100,
-        "seo": 92
+        "seo": 100
       },
       "runs": {
         "performance": [
@@ -150,13 +150,13 @@
           100
         ],
         "seo": [
-          92,
-          92,
-          92
+          100,
+          100,
+          100
         ]
       },
       "metricsMedian": {
-        "lcpMs": 1102,
+        "lcpMs": 1101,
         "cls": 0,
         "tbtMs": 0
       }
