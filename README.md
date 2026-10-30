@@ -77,13 +77,13 @@ Endpoints de controle (sem latência): `GET /__mock/state`, `POST /__mock/reset`
 
 Todos a partir de `npm run dev` (ou da URL pública), logado como `ana@kurio.dev`:
 
-1. **Preço muda com o NFT no carrinho**: adicione um NFT, abra `/cart` e, em outra aba do DevTools, rode `fetch(/__mock/nfts/emerald-ape-042/update,{method:POST,headers:{Content-Type:application/json},body:JSON.stringify({priceEth:2.50})})`. O resumo é recotado e um aviso aparece. Em `/checkout`, confirmar com a cotação antiga abre "A cotação mudou". Atalho: `/?scenario=price-change&reset=1`, faça o checkout e espere 10 s antes de confirmar.
+1. **Preço muda com o NFT no carrinho**: adicione um NFT, abra `/cart` e, em outra aba do DevTools, rode `fetch('/__mock/nfts/emerald-ape-042/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ priceEth: '2.50' }) })`. O resumo é recotado e um aviso aparece. Em `/checkout`, confirmar com a cotação antiga abre "A cotação mudou". Atalho: `/?scenario=price-change&reset=1`, faça o checkout e espere 10 s antes de confirmar.
 2. **Clique repetido / timeout**: `/?scenario=order-timeout&reset=1`; no checkout clique em confirmar várias vezes. Só um pedido é criado; após o alerta de timeout, "Tentar novamente" leva ao mesmo pedido.
 3. **Pagamento recusado**: `/?scenario=order-declined&reset=1`.
-4. **Pedido pendente com queda de conexão**: confirme um pedido e, com ele pendente, rode `fetch(/__mock/socket/disconnect,{method:POST})` ou recarregue a página. O estado é recuperado sem criar outro pedido.
+4. **Pedido pendente com queda de conexão**: confirme um pedido e, com ele pendente, rode `fetch('/__mock/socket/disconnect', { method: 'POST' })` ou recarregue a página. O estado é recuperado sem criar outro pedido.
 5. **Sessão expirada no checkout**: no painel "Cenários" clique em "Expirar sessão" durante o checkout. O diálogo leva ao login e devolve ao checkout com os dados preservados.
 6. **Cupom inválido/expirado**: `GENESIS` (expirado), qualquer outro código (inválido), ou `/?scenario=coupon-expired`.
 7. **Lentidão, falhas e offline**: `/?scenario=slow`, `/?scenario=flaky`, `/?scenario=offline`, `/?scenario=out-of-order`.
-8. **Falha de favorito com rollback**: `fetch(/__mock/fail-next,{method:POST,headers:{Content-Type:application/json},body:JSON.stringify({method:PUT,path:/api/favorites*,status:503})})` e clique num coração.
+8. **Falha de favorito com rollback**: `fetch('/__mock/fail-next', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ method: 'PUT', path: '/api/favorites*', status: 503 }) })` e clique num coração.
 
 Os testes em `e2e/` automatizam cada um desses fluxos.
