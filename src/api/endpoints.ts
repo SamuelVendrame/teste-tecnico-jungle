@@ -84,6 +84,11 @@ export const nftApi = {
 export const favoritesApi = {
   list: (o: Opts = {}) =>
     request({ method: 'GET', url: '/favorites', signal: o.signal }, favorites.parse),
+  listNfts: (o: Opts = {}) =>
+    request(
+      { method: 'GET', url: '/favorites/nfts', signal: o.signal },
+      z.object({ items: z.array(nft) }).parse,
+    ),
   add: (nftId: string) =>
     request({ method: 'PUT', url: `/favorites/${encodeURIComponent(nftId)}` }, favorites.parse),
   remove: (nftId: string) =>

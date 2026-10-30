@@ -1,11 +1,11 @@
 /**
  * Favoritos: privados por usuário (exigem Bearer). PUT/DELETE são idempotentes.
  */
-import type { Favorites } from '@/api/contracts'
+import type { Favorites, Nft } from '@/api/contracts'
 
 import { commit, getDb, type DbFavorites } from '../db'
 import { requireAuth } from '../domain/auth'
-import { requireNft } from '../domain/nfts'
+import { findNft, requireNft } from '../domain/nfts'
 import { json, param, route } from './http'
 
 function favoritesOf(userId: string): DbFavorites {
@@ -21,6 +21,15 @@ export const favoritesHandlers = [
   route('get', '/favorites', ({ request }) => {
     const { user } = requireAuth(request)
     return json<Favorites>(render(favoritesOf(user.id)))
+  }),
+
+  /** Favoritos expandidos com os dados do NFT, na ordem em que foram salvos. */
+  route('get', '/favorites/nfts', ({ request }) => {
+    const { user } = requireAuth(request)
+    const items = favoritesOf(user.id)
+      .nftIds.map((id) => findNft(id))
+      .filter((n): n is Nft => Boolean(n))
+    return json<{ items: Nft[] }>({ items })
   }),
 
   route('put', '/favorites/:nftId', ({ request, params }) => {

@@ -19,6 +19,7 @@ export const queryKeys = {
     current: () => ['session'] as const,
   },
   favorites: (userId: string) => ['favorites', userId] as const,
+  favoriteNfts: (userId: string) => ['favorites', userId, 'nfts'] as const,
   cart: (ownerId: string) => ['cart', ownerId] as const,
   quote: (ownerId: string, fingerprintInput: string) =>
     ['quote', ownerId, fingerprintInput] as const,
