@@ -37,3 +37,12 @@ Registro cronológico. Cada item traz o motivo da escolha.
 - **Login desktop como modal sobre o marketplace** (como no Figma) usando o header real do shell atrás; mobile em página inteira.
 - **Botão de carrinho extra no detalhe desktop**, espelhando a buy bar do mobile.
 - **Consumo do carrinho após confirmação é "no máximo uma vez"**: `kurio:pending-order` é apagado antes do `POST /cart/consume`. Um refresh nessa janela de ~400 ms deixa o item no carrinho (inofensivo) em vez de arriscar subtrair duas vezes.
+
+## Correções após revisão
+
+- **Consumo do carrinho passou para o servidor simulado**: quando o pedido confirma, o mock remove as linhas compradas do carrinho do comprador antes de emitir `order.updated`; o cliente só invalida o cache. Substitui a decisão anterior de consumir pelo cliente ("no máximo uma vez"), que falhava se o usuário não estivesse na página do pedido.
+- **Rascunho do checkout e pedido pendente são escopados por usuário** e apagados no logout. Motivo: revisão encontrou dados da Ana aparecendo no checkout do Bruno na mesma aba (item eliminatório).
+- **Retry do TanStack Query corrigido**: o predicado checava `AxiosError`, mas o interceptor rejeita com `ApiClientError`; nunca havia retry. Agora `isTransient && !canceled`, 2 tentativas.
+- **Mocks ligados por padrão** (`VITE_ENABLE_MSW` só desliga com `false`) e `.env.production` versionado. Motivo: build limpo na Vercel subiria sem mocks.
+- **Conexão de carteira virou endpoint do mock** (`POST /wallets/:id/connect`, erro `WALLET_REFUSED`) em vez de `setTimeout` no componente.
+- **Performance mobile ficou em 78/81** (meta 90). Causa e tentativas documentadas em `lighthouse/README.md`. Priorizei os fluxos; próximos passos possíveis: (separar decimal.js da formatação, enxugar Radix no shell).

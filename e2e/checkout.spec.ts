@@ -70,10 +70,13 @@ test.describe('Checkout', () => {
 
     // Outro item entra no carrinho enquanto o pedido está pendente: não pode ser consumido.
     await seedCart(page, [{ nft: SAGE }])
-    // Na confirmação a app consome do carrinho só as linhas compradas (POST /cart/consume).
-    const consumed = page.waitForResponse(
-      (res) => res.url().endsWith('/api/cart/consume') && res.request().method() === 'POST',
-    )
+    // Na confirmação o servidor tira do carrinho só as linhas compradas; o
+    // `order.updated` invalida ['cart', userId] e a app rebusca o carrinho sem reload.
+    const cartRefreshed = page.waitForResponse(async (res) => {
+      if (!res.url().endsWith('/api/cart') || res.request().method() !== 'GET') return false
+      const body = (await res.json()) as { items: { nftId: string }[] }
+      return body.items.every((item) => item.nftId !== EMERALD.id)
+    })
 
     await expect
       .poll(async () => page.getByRole('heading', { name: 'Pedido confirmado' }).isVisible(), {
@@ -94,12 +97,10 @@ test.describe('Checkout', () => {
     expect(await readLines(receipt.locator('ul').first())).toEqual(reviewedLines)
     expect(await readTotals(receipt.locator('dl[aria-busy]'))).toEqual(reviewedTotals)
 
-    // Só o item comprado sai do carrinho.
-    const consume = await consumed
-    expect(consume.ok()).toBe(true)
-    expect(consume.request().postDataJSON()).toEqual({
-      lines: [{ nftId: EMERALD.id, editionId: EMERALD.editionId, quantity: 1 }],
-    })
+    // Só o item comprado sai do carrinho (a app nunca chama POST /cart/consume).
+    const refreshed = await cartRefreshed
+    const items = ((await refreshed.json()) as { items: { nftId: string }[] }).items
+    expect(items.map((item) => item.nftId)).toEqual([SAGE.id])
     await page.goto('/cart')
     await expect(cartLine(page, SAGE)).toBeVisible()
     await expect(cartLine(page, EMERALD)).toHaveCount(0)

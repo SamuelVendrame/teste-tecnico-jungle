@@ -297,6 +297,43 @@ test.describe('Tempo real: robustez', () => {
     await expect(page.locator('[title^="0x"]')).not.toHaveAttribute('title', `0x${'ab'.repeat(32)}`)
   })
 
+  test('reconexão do socket reconcilia com o REST a mudança perdida, sem reload', async ({
+    page,
+  }) => {
+    await resetMocks(page)
+    await loginViaApi(page, 'ana')
+    await settledCount(page)
+    await waitForSocket(page, { userId: 'usr_ana' })
+    const emeraldPrice = catalogCardPrice(page, EMERALD.name)
+    await expect(emeraldPrice).toHaveText('1.19 ETH')
+    await markPage(page)
+
+    // Derruba o socket e, antes de o cliente reconectar (backoff >= 250 ms), muda o
+    // preço no servidor: o `nft.updated` sai sem nenhuma conexão e se perde.
+    const offline = await page.evaluate(async (id) => {
+      const post = (url: string, body: unknown) =>
+        fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        }).then((res) => res.json() as Promise<Record<string, unknown>>)
+      const { closed } = await post('/__mock/socket/disconnect', {})
+      await post(`/__mock/nfts/${id}/update`, { priceEth: '2.22' })
+      const state = (await fetch('/__mock/socket/state').then((res) => res.json())) as {
+        connected: number
+      }
+      return { closed: closed as number, connectedAfterUpdate: state.connected }
+    }, EMERALD.id)
+    expect(offline.closed).toBeGreaterThanOrEqual(1)
+    // Ninguém estava conectado quando o evento foi emitido: ele não foi entregue.
+    expect(offline.connectedAfterUpdate).toBe(0)
+
+    // O cliente reconecta sozinho e invalida as queries ativas (['nfts'] etc.).
+    await waitForSocket(page, { userId: 'usr_ana' })
+    await expect(emeraldPrice).toHaveText('2.22 ETH')
+    await expectNotReloaded(page)
+  })
+
   test('queda do socket com pedido pendente: o reload recupera o pedido sem duplicar', async ({
     page,
   }) => {

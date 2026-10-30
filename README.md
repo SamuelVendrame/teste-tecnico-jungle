@@ -20,7 +20,7 @@ npm run dev            # http://localhost:5173
 
 | Variável | Padrão | Descrição |
 | --- | --- | --- |
-| `VITE_ENABLE_MSW` | `true` | Ativa a camada de mocks (REST + Socket.IO). Sem backend real, mantenha `true`. |
+| `VITE_ENABLE_MSW` | `true` | Camada de mocks (REST + Socket.IO). Ligada por padrão, mesmo sem `.env`; só `false` desliga. O `.env.production` versionado fixa `true` no build de demonstração. |
 | `VITE_API_URL` | `/api` | Base da API. |
 | `VITE_SOCKET_URL` | `ws://localhost/socket` | URL do socket (interceptada pelo MSW). |
 

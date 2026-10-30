@@ -49,7 +49,7 @@ Pontos de contrato que a UI depende:
 - O carrinho é **server-side** (no mock), não um array no cliente. Visitantes são identificados por `X-Cart-Id` (`localStorage['kurio:guest-cart']`); usuários pelo token. Refresh mantém tudo porque o banco simulado é persistido.
 - No login, `POST /cart/merge` funde o carrinho do visitante no do usuário (soma quantidades, respeita limites) e o id de visitante é descartado.
 - Cada item guarda um **snapshot leve** (nome, imagem, preço da edição no momento em que foi adicionado). O snapshot serve para renderizar na hora; **a cotação (`POST /checkout/quote`) é a fonte da verdade de preço, desconto, taxa e total**. A cotação compara o preço atual com o snapshot e devolve `issues` (preço alterado, esgotado, estoque insuficiente), que a UI exibe antes de deixar seguir.
-- Após um pedido confirmado, `POST /cart/consume` remove apenas os itens e quantidades comprados; em falha o carrinho fica intacto.
+- Quando um pedido é confirmado, o **servidor** (mock) remove do carrinho do comprador apenas os itens e quantidades comprados e incrementa a `version` do carrinho, antes de emitir `order.updated`. Recusa não toca o carrinho. O cliente só revalida `['cart', userId]`: ao aplicar `order.updated` confirmado (em qualquer página) e, como rede de segurança, quando o polling de 3s do pedido vê o estado terminal (`settleOrder`). `POST /cart/consume` continua na API por completude, mas a app não depende dele.
 - A rede usada na cotação do carrinho é a do primeiro item; no checkout o usuário escolhe explicitamente.
 
 ## Estratégia de cache, retries e sincronização
@@ -80,7 +80,7 @@ Definida em `src/app/query-client.ts`:
 - Avaliações com estrelas do Figma não existem no contrato; o detalhe usa "likes" e a aba "Avaliações" virou "Atributos".
 - Links fora do escopo (Mercado, Criadores, Aprenda, Central de ajuda, redes sociais, "Ler mais" do blog) ficam desabilitados com tooltip "Em breve"; a newsletter valida o e-mail e avisa que nada foi cadastrado. Nenhuma ação fora do escopo aparenta sucesso.
 - Favoritos e Pedidos não têm frame no Figma; vivem como seções da página de perfil.
-- A conexão de carteira é simulada no cliente (conectar, recusar, desconectar) e exigida para confirmar o pedido.
+- A conexão de carteira passa por `POST /wallets/:id/connect` no mock (aprovação após a latência do cenário; recusa = 409 `WALLET_REFUSED`) e é exigida pela UI para confirmar o pedido. O estado "conectada" vive só no cliente (não é persistido) e o `POST /orders` não o revalida; desconectar é local.
 - Perfil, carteiras e confirmação não têm frame mobile; foram adaptados mantendo a linguagem visual.
 
 ## Desvios do Figma

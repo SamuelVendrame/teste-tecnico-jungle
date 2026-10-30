@@ -1,0 +1,165 @@
+{
+  "generatedAt": "2026-10-30T17:35:16.364Z",
+  "baseUrl": "http://localhost:4173",
+  "runs": 3,
+  "tools": {
+    "lighthouse": "13.6.0",
+    "node": "v24.12.0",
+    "chrome": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "platform": "win32 x64"
+  },
+  "results": [
+    {
+      "page": "home",
+      "url": "http://localhost:4173/",
+      "profile": "mobile",
+      "median": {
+        "performance": 78,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 92
+      },
+      "runs": {
+        "performance": [
+          78,
+          78,
+          78
+        ],
+        "accessibility": [
+          100,
+          100,
+          100
+        ],
+        "best-practices": [
+          100,
+          100,
+          100
+        ],
+        "seo": [
+          92,
+          92,
+          92
+        ]
+      },
+      "metricsMedian": {
+        "lcpMs": 5719,
+        "cls": 0.017,
+        "tbtMs": 126
+      }
+    },
+    {
+      "page": "home",
+      "url": "http://localhost:4173/",
+      "profile": "desktop",
+      "median": {
+        "performance": 98,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 92
+      },
+      "runs": {
+        "performance": [
+          98,
+          99,
+          98
+        ],
+        "accessibility": [
+          100,
+          100,
+          100
+        ],
+        "best-practices": [
+          100,
+          100,
+          100
+        ],
+        "seo": [
+          92,
+          92,
+          92
+        ]
+      },
+      "metricsMedian": {
+        "lcpMs": 1141,
+        "cls": 0.001,
+        "tbtMs": 0
+      }
+    },
+    {
+      "page": "nft-detail",
+      "url": "http://localhost:4173/nft/emerald-ape-042",
+      "profile": "mobile",
+      "median": {
+        "performance": 81,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 92
+      },
+      "runs": {
+        "performance": [
+          81,
+          81,
+          81
+        ],
+        "accessibility": [
+          100,
+          100,
+          100
+        ],
+        "best-practices": [
+          100,
+          100,
+          100
+        ],
+        "seo": [
+          92,
+          92,
+          92
+        ]
+      },
+      "metricsMedian": {
+        "lcpMs": 5078,
+        "cls": 0.015,
+        "tbtMs": 69
+      }
+    },
+    {
+      "page": "nft-detail",
+      "url": "http://localhost:4173/nft/emerald-ape-042",
+      "profile": "desktop",
+      "median": {
+        "performance": 98,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 92
+      },
+      "runs": {
+        "performance": [
+          98,
+          98,
+          98
+        ],
+        "accessibility": [
+          100,
+          100,
+          100
+        ],
+        "best-practices": [
+          100,
+          100,
+          100
+        ],
+        "seo": [
+          92,
+          92,
+          92
+        ]
+      },
+      "metricsMedian": {
+        "lcpMs": 1102,
+        "cls": 0,
+        "tbtMs": 0
+      }
+    }
+  ]
+}

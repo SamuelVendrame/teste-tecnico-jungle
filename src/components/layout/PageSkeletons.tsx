@@ -81,7 +81,12 @@ export function NftDetailSkeleton() {
         </div>
         <div className="mt-12">
           <div className="skeleton h-8 w-64" />
-          <CatalogGridSkeleton count={3} className="mt-6 grid-cols-3" />
+          {/* Sem role=status aqui: o status "Carregando NFT" do container já cobre tudo. */}
+          <div className="mt-6 grid grid-cols-3 gap-x-[34px]" aria-hidden>
+            {Array.from({ length: 3 }, (_, i) => (
+              <NftCardSkeleton key={i} />
+            ))}
+          </div>
         </div>
       </Container>
     </div>

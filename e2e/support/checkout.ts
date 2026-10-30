@@ -26,7 +26,7 @@ export async function fillCollector(page: Page, document = CPF) {
   await page.getByLabel('CPF ou CNPJ').fill(document)
 }
 
-/** Seleciona a carteira pelo apelido e simula a conexão (1,2 s de "aprovação"). */
+/** Seleciona a carteira pelo apelido e conecta (POST /wallets/:id/connect no mock). */
 export async function selectAndConnectWallet(page: Page, label = 'MetaMask principal') {
   const radio = page.getByRole('radio', { name: new RegExp(label) })
   await radio.click()
