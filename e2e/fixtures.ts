@@ -67,6 +67,29 @@ export async function setScenario(page: Page, name: ScenarioName) {
   await mockControl(page, 'scenario', { name })
 }
 
+interface SocketState {
+  connected: number
+  clients: { userId: string | null }[]
+}
+
+/**
+ * Aguarda o socket.io-client da página conectar ao servidor simulado. Com
+ * `userId`, espera também o `session.bind` dessa conta: o servidor só entrega
+ * `order.updated` às conexões do dono do pedido.
+ */
+export async function waitForSocket(page: Page, options: { userId?: string } = {}) {
+  await expect
+    .poll(
+      async () => {
+        const state = await mockControl<SocketState>(page, 'socket/state')
+        if (state.connected < 1) return false
+        return options.userId ? state.clients.some((c) => c.userId === options.userId) : true
+      },
+      { message: 'socket.io-client conectado ao mock', timeout: 10_000 },
+    )
+    .toBe(true)
+}
+
 /** Login pela API (rápido) seguido de reload para a app hidratar a sessão. */
 export async function loginViaApi(page: Page, user: keyof typeof USERS = 'ana') {
   const { email, password } = USERS[user]

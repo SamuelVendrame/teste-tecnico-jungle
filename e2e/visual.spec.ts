@@ -1,16 +1,17 @@
 import type { Page } from '@playwright/test'
 
-import { expect, resetMocks, test, waitForImages } from './fixtures'
+import { expect, loginViaApi, resetMocks, test, waitForImages } from './fixtures'
+import { EMERALD, SAGE, cartLine, cartSummary, seedCart, settledTotals } from './support/cart'
 import { settledCount } from './support/catalog'
+import { reviewSection, settledQuoteTotal } from './support/checkout'
 
 /**
  * Regressão visual. Os dados vêm do seed determinístico, a animação é desligada
  * (reducedMotion + `animations: 'disabled'`) e a página só é fotografada depois de
- * rede ociosa, fontes e imagens carregadas. Nada é mascarado: não há conteúdo
- * dependente de data/hora nas telas fotografadas.
+ * rede ociosa, fontes e imagens carregadas. Só a contagem regressiva da cotação no
+ * checkout ("Cotação válida por") é mascarada: o resto não depende de data/hora.
  *
  * Baselines: `npm run test:e2e:update -- visual.spec.ts`.
- * Carrinho e checkout entram no spec do fluxo de compra.
  */
 async function settle(page: Page) {
   await page.waitForLoadState('networkidle')
@@ -39,5 +40,34 @@ test.describe('Regressão visual', () => {
     await settle(page)
 
     await expect(page).toHaveScreenshot('nft-detail.png', { fullPage: true })
+  })
+
+  test('carrinho com dois itens', async ({ page }) => {
+    await resetMocks(page)
+    await seedCart(page, [{ nft: EMERALD }, { nft: SAGE }])
+    await page.goto('/cart')
+    await expect(cartLine(page, EMERALD)).toBeVisible()
+    await expect(cartLine(page, SAGE)).toBeVisible()
+    await settledTotals(cartSummary(page))
+    await settle(page)
+
+    await expect(page).toHaveScreenshot('cart.png', { fullPage: true })
+  })
+
+  test('pagamento com carteira selecionada', async ({ page }) => {
+    await resetMocks(page)
+    await loginViaApi(page, 'ana')
+    await seedCart(page, [{ nft: EMERALD }, { nft: SAGE }])
+    await page.goto('/checkout')
+    await expect(page.getByRole('radio', { name: /MetaMask principal/ })).toBeChecked()
+    await settledQuoteTotal(page)
+    await expect(reviewSection(page).getByText(SAGE.name)).toBeVisible()
+    await settle(page)
+
+    await expect(page).toHaveScreenshot('checkout.png', {
+      fullPage: true,
+      // A validade da cotação muda a cada segundo.
+      mask: [page.getByText(/Cotação válida por/)],
+    })
   })
 })

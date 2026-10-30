@@ -36,3 +36,4 @@ Registro cronológico. Cada item traz o motivo da escolha.
 - **Polling de 3s na página do pedido enquanto pendente**, além do socket. Rede de segurança para refresh e quedas.
 - **Login desktop como modal sobre o marketplace** (como no Figma) usando o header real do shell atrás; mobile em página inteira.
 - **Botão de carrinho extra no detalhe desktop**, espelhando a buy bar do mobile.
+- **Consumo do carrinho após confirmação é "no máximo uma vez"**: `kurio:pending-order` é apagado antes do `POST /cart/consume`. Um refresh nessa janela de ~400 ms deixa o item no carrinho (inofensivo) em vez de arriscar subtrair duas vezes.
