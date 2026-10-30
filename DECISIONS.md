@@ -25,3 +25,14 @@ Registro cronológico. Cada item traz o motivo da escolha.
 - **Regressão visual** com `toHaveScreenshot`, `reducedMotion: 'reduce'`, animações desligadas e `maxDiffPixelRatio` 1%, baselines versionadas em `e2e/__screenshots__`.
 - **Lighthouse via script Node** (`scripts/lighthouse.mjs`) com `lighthouse/config.json` versionado, 3 medições por página/perfil, mediana e relatórios HTML/JSON. Relatórios HTML ficam fora do git (pesados); `SUMMARY.md` e `summary.json` são versionados.
 - **Imagens dos NFTs convertidas para WebP** (800px e 400px) a partir dos PNGs de 1254px/2MB do Figma. Motivo: LCP e Performance ≥ 90. Isso é um desvio documentado de asset.
+
+## Produto
+
+- **Favoritos e Pedidos são seções de `/profile`** (`#favoritos`, `#pedidos`), não páginas próprias. Motivo: sem frame no Figma e sem tempo; o enunciado só exige que favoritos persistam e pedidos sejam consultáveis.
+- **Avaliações com estrelas viraram "Atributos"** no detalhe. O contrato não tem rating; inventar dados fictícios de avaliação parecia pior do que trocar a aba.
+- **Rede da cotação no carrinho = rede do primeiro item**; no checkout o usuário escolhe explicitamente.
+- **Cotação é single-use** e tem `fingerprint`; o pedido envia o fingerprint revisado e a API recusa com `QUOTE_STALE` se algo mudou.
+- **Idempotency-Key por tentativa de checkout**, guardada em sessionStorage e reutilizada em timeout/clique repetido; só gira após resposta definitiva.
+- **Polling de 3s na página do pedido enquanto pendente**, além do socket. Rede de segurança para refresh e quedas.
+- **Login desktop como modal sobre o marketplace** (como no Figma) usando o header real do shell atrás; mobile em página inteira.
+- **Botão de carrinho extra no detalhe desktop**, espelhando a buy bar do mobile.
