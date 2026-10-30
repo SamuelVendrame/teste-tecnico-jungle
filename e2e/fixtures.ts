@@ -30,9 +30,13 @@ export type ScenarioName =
   | 'sold-out'
 
 export async function waitForMocks(page: Page) {
-  await page.waitForFunction(() => Boolean((window as unknown as { __kurioMocks?: unknown }).__kurioMocks), null, {
-    timeout: 15_000,
-  })
+  await page.waitForFunction(
+    () => Boolean((window as unknown as { __kurioMocks?: unknown }).__kurioMocks),
+    null,
+    {
+      timeout: 15_000,
+    },
+  )
 }
 
 export async function resetMocks(page: Page, scenario: ScenarioName = 'default', path = '/') {
@@ -96,8 +100,9 @@ export async function loginViaUi(page: Page, user: keyof typeof USERS = 'ana') {
 }
 
 export const test = base.extend<{ isMobile: boolean }>({
-  isMobile: async ({}, use, testInfo) => {
-    await use(testInfo.project.name === 'mobile')
+  // eslint-disable-next-line no-empty-pattern, react-hooks/rules-of-hooks -- API do Playwright, não é hook do React
+  isMobile: async ({}, runTest, testInfo) => {
+    await runTest(testInfo.project.name === 'mobile')
   },
 })
 

@@ -1,34 +1,52 @@
 import type { QueryClient } from '@tanstack/react-query'
 import { Outlet, createRootRouteWithContext } from '@tanstack/react-router'
 
+import { LiveRegion } from '@/components/common/LiveRegion'
+import { Footer } from '@/components/layout/Footer'
+import { Header } from '@/components/layout/Header'
+import { MobileTabBar } from '@/components/layout/MobileTabBar'
+import { RouteError, RouteNotFound } from '@/components/layout/RouteStates'
+import { MAIN_CONTENT_ID, SkipLink } from '@/components/layout/SkipLink'
+import { TAB_BAR_SPACER, useTabBarVisible } from '@/components/layout/tab-bar'
 import { Toaster } from '@/components/ui/sonner'
+import { TooltipProvider } from '@/components/ui/tooltip'
+import { cn } from '@/lib/utils'
 
 export interface RouterContext {
   queryClient: QueryClient
 }
 
-export const Route = createRootRouteWithContext<RouterContext>()({
-  component: RootLayout,
-  notFoundComponent: NotFound,
-})
-
-function RootLayout() {
-  return (
-    <>
-      <Outlet />
-      <Toaster position="bottom-right" />
-    </>
-  )
+/** Toasts na fonte e na cor da marca (o Sonner usa fonte própria por padrão). */
+const TOAST_OPTIONS = {
+  style: { fontFamily: "'Roboto Mono', ui-monospace, monospace" },
+  actionButtonStyle: { background: 'var(--kurio-primary)', color: 'var(--kurio-ink)' },
 }
 
-function NotFound() {
+export const Route = createRootRouteWithContext<RouterContext>()({
+  component: RootLayout,
+  notFoundComponent: RouteNotFound,
+  errorComponent: RouteError,
+})
+
+/**
+ * Shell: header (>= 768px), conteúdo, footer e Tab Bar (< 768px).
+ * As páginas renderizam dentro de <main>; não declare outro <main> nelas.
+ */
+function RootLayout() {
+  const tabBarVisible = useTabBarVisible()
   return (
-    <main className="mx-auto flex min-h-dvh max-w-7xl flex-col items-center justify-center gap-4 px-4 text-center">
-      <h1 className="text-2xl font-bold">Página não encontrada</h1>
-      <p className="text-text-secondary">O endereço que você acessou não existe.</p>
-      <a href="/" className="text-text-accent underline underline-offset-4">
-        Voltar ao início
-      </a>
-    </main>
+    <TooltipProvider delayDuration={200}>
+      <SkipLink />
+      <div className={cn('flex min-h-dvh flex-col', tabBarVisible && TAB_BAR_SPACER)}>
+        <Header />
+        <main id={MAIN_CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">
+          <Outlet />
+        </main>
+        <Footer />
+      </div>
+      <MobileTabBar />
+      <LiveRegion />
+      <Toaster position="bottom-right" toastOptions={TOAST_OPTIONS} />
+    </TooltipProvider>
   )
 }
