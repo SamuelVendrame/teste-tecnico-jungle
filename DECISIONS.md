@@ -18,3 +18,10 @@ Registro cronológico. Cada item traz o motivo da escolha.
 ## Produto
 
 - Fonte **Roboto Mono via Google Fonts self-hosted** (`@fontsource`), para não depender de rede externa no Lighthouse e no deploy.
+
+## Testes e auditoria
+
+- **Playwright roda contra o build de produção** (`vite preview` na 4173) com mocks ativos, não contra o dev server. Motivo: é o mesmo artefato do deploy; evita diferença entre dev e demo. Projetos `desktop` (1440) e `mobile` (Pixel 7, 390). `workers: 1` porque o estado do MSW vive no navegador e cada teste reseta via `?reset=1`.
+- **Regressão visual** com `toHaveScreenshot`, `reducedMotion: 'reduce'`, animações desligadas e `maxDiffPixelRatio` 1%, baselines versionadas em `e2e/__screenshots__`.
+- **Lighthouse via script Node** (`scripts/lighthouse.mjs`) com `lighthouse/config.json` versionado, 3 medições por página/perfil, mediana e relatórios HTML/JSON. Relatórios HTML ficam fora do git (pesados); `SUMMARY.md` e `summary.json` são versionados.
+- **Imagens dos NFTs convertidas para WebP** (800px e 400px) a partir dos PNGs de 1254px/2MB do Figma. Motivo: LCP e Performance ≥ 90. Isso é um desvio documentado de asset.
