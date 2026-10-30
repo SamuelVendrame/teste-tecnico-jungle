@@ -3,15 +3,19 @@
  * - Username único: 422 VALIDATION_ERROR com details.username.
  * - Senha atual errada: 422 VALIDATION_ERROR com details.currentPassword.
  * - No máximo uma carteira `primary` e uma `secondary` por usuário: 409 WALLET_LIMIT.
+ * - Conexão de carteira: responde depois da latência do cenário (o tempo de
+ *   aprovação na extensão); `simulateRefusal: true` simula a recusa (409 WALLET_REFUSED).
  */
 import { z } from 'zod'
 
 import {
   changePasswordInput,
   updateProfileInput,
+  walletConnectInput,
   walletInput,
   type User,
   type Wallet,
+  type WalletConnection,
 } from '@/api/contracts'
 
 import { commit, getDb, nowIso } from '../db'
@@ -110,5 +114,21 @@ export const accountHandlers = [
     Object.assign(wallet, input, { updatedAt: nowIso(), version: wallet.version + 1 })
     commit()
     return json<Wallet>(wallet)
+  }),
+
+  route('post', '/wallets/:walletId/connect', async ({ request, params }) => {
+    const { user } = requireAuth(request)
+    const wallet = getDb().wallets[param(params, 'walletId')]
+    if (!wallet) throw problems.notFound('Carteira não encontrada.')
+    if (wallet.userId !== user.id) throw problems.forbidden('Esta carteira pertence a outra conta.')
+    const { simulateRefusal } = await parseBody(request, walletConnectInput)
+    if (simulateRefusal) {
+      throw new ApiProblem(
+        409,
+        'WALLET_REFUSED',
+        'A conexão foi recusada na carteira. Aprove a solicitação e tente de novo.',
+      )
+    }
+    return json<WalletConnection>({ status: 'connected' })
   }),
 ]

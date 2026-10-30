@@ -7,7 +7,7 @@ const DevPanelContent = lazy(() => import('./DevPanelContent'))
  * o conteúdo é carregado sob demanda para não pesar no bundle principal.
  */
 export function DevPanel() {
-  if (import.meta.env.VITE_ENABLE_MSW !== 'true') return null
+  if (import.meta.env.VITE_ENABLE_MSW === 'false') return null
   return (
     <Suspense fallback={null}>
       <DevPanelContent />

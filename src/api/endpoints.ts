@@ -13,6 +13,7 @@ import {
   type QuoteInput,
   type RegisterInput,
   type UpdateProfileInput,
+  type WalletConnectInput,
   type WalletInput,
   cart,
   catalogPage,
@@ -25,6 +26,7 @@ import {
   session,
   user,
   wallet,
+  walletConnection,
 } from './contracts'
 import { request } from './client'
 import { z } from 'zod'
@@ -112,7 +114,11 @@ export const cartApi = {
     request({ method: 'PUT', url: '/cart/coupon', data: { couponCode } }, cart.parse),
   merge: (guestCartId: string) =>
     request({ method: 'POST', url: '/cart/merge', data: { guestCartId } }, cart.parse),
-  /** Remove apenas os itens/quantidades comprados; o restante permanece. */
+  /**
+   * Remove apenas os itens/quantidades comprados; o restante permanece. A app não
+   * o chama: o servidor já consome o carrinho ao confirmar o pedido. Mantido por
+   * completude da API.
+   */
   consume: (lines: Array<{ nftId: string; editionId: string; quantity: number }>) =>
     request({ method: 'POST', url: '/cart/consume', data: { lines } }, cart.parse),
 }
@@ -172,5 +178,11 @@ export const walletApi = {
     request(
       { method: 'PATCH', url: `/wallets/${encodeURIComponent(walletId)}`, data: input },
       wallet.parse,
+    ),
+  /** Pede a conexão à carteira (aprovação simulada). Recusa = 409 WALLET_REFUSED. */
+  connect: (walletId: string, input: WalletConnectInput = {}) =>
+    request(
+      { method: 'POST', url: `/wallets/${encodeURIComponent(walletId)}/connect`, data: input },
+      walletConnection.parse,
     ),
 }

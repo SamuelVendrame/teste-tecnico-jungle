@@ -7,22 +7,20 @@ import {
   UnplugIcon,
   WalletIcon,
 } from 'lucide-react'
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 
 import { NETWORK_LABELS, type Wallet } from '@/api/contracts'
 import { announce } from '@/components/common/announce'
 import { Button } from '@/components/ui/button'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import {
+  connectWallet,
   getWalletConnection,
   setWalletConnection,
   useWalletConnection,
 } from '@/features/wallets/wallet-connection-store'
 import { KIND_LABELS, PROVIDER_LABELS, truncateAddress } from '@/features/wallets/wallet-meta'
 import { cn } from '@/lib/utils'
-
-/** Tempo simulado de aprovação na extensão/app da carteira. */
-const CONNECT_DELAY_MS = 1_200
 
 interface WalletSectionProps {
   wallets: Wallet[] | undefined
@@ -141,36 +139,26 @@ function WalletOption({ wallet, selected }: { wallet: Wallet; selected: boolean 
 
 function ConnectionControls({ walletId, disabled }: { walletId: string; disabled: boolean }) {
   const state = useWalletConnection(walletId)
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(
     () => () => {
-      if (timer.current) clearTimeout(timer.current)
-      // Saiu do checkout no meio da conexão: não deixa a carteira "conectando" para sempre.
+      // Saiu do checkout no meio da conexão: não deixa a carteira "conectando" para
+      // sempre (a resposta que chegar depois é descartada pelo store).
       if (getWalletConnection(walletId) === 'connecting')
         setWalletConnection(walletId, 'disconnected')
     },
     [walletId],
   )
 
-  function connect() {
-    setWalletConnection(walletId, 'connecting')
+  async function requestConnection(simulateRefusal: boolean) {
     announce('Conectando carteira…')
-    timer.current = setTimeout(() => {
-      timer.current = null
-      if (getWalletConnection(walletId) !== 'connecting') return
-      setWalletConnection(walletId, 'connected')
-      announce('Carteira conectada.')
-    }, CONNECT_DELAY_MS)
-  }
-
-  function refuse() {
-    if (timer.current) clearTimeout(timer.current)
-    setWalletConnection(walletId, 'refused')
+    const result = await connectWallet(walletId, { simulateRefusal })
+    if (result === 'connected') announce('Carteira conectada.')
+    else if (result === 'disconnected')
+      announce('Não foi possível conectar a carteira. Tente novamente.')
   }
 
   function disconnect() {
-    if (timer.current) clearTimeout(timer.current)
     setWalletConnection(walletId, 'disconnected')
     announce('Carteira desconectada.')
   }
@@ -211,7 +199,7 @@ function ConnectionControls({ walletId, disabled }: { walletId: string; disabled
           <Button
             type="button"
             variant="outline"
-            onClick={connect}
+            onClick={() => void requestConnection(false)}
             disabled={disabled || state === 'connecting'}
             aria-busy={state === 'connecting'}
             className={cn(
@@ -229,7 +217,7 @@ function ConnectionControls({ walletId, disabled }: { walletId: string; disabled
           <Button
             type="button"
             variant="ghost"
-            onClick={refuse}
+            onClick={() => void requestConnection(true)}
             disabled={disabled || state === 'refused'}
             className="h-10 text-xs text-text-secondary hover:text-text-primary"
           >

@@ -74,6 +74,15 @@ export function NftDetailSkeleton() {
             <div className="skeleton h-24 w-2/3" />
           </div>
         </div>
+        {/* Abas de descrição e "Relacionados": mantêm a altura da página real (evita o footer pular). */}
+        <div className="mt-12 space-y-4">
+          <div className="skeleton h-8 w-72" />
+          <div className="skeleton h-40 w-full" />
+        </div>
+        <div className="mt-12">
+          <div className="skeleton h-8 w-64" />
+          <CatalogGridSkeleton count={3} className="mt-6 grid-cols-3" />
+        </div>
       </Container>
     </div>
   )

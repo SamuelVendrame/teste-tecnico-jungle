@@ -15,13 +15,15 @@ interface NftCardProps {
   >
   className?: string
   sizes?: string
+  /** Primeiros cards acima da dobra: carregam a imagem com prioridade (LCP). */
+  priority?: boolean
 }
 
 /**
  * Card do catálogo. O link cobre imagem, nome e preço; o coração é irmão do
  * link (nunca um botão dentro de um <a>).
  */
-export function NftCard({ nft, className, sizes }: NftCardProps) {
+export function NftCard({ nft, className, sizes, priority = false }: NftCardProps) {
   return (
     <article className={cn('group relative', className)}>
       <Link
@@ -35,6 +37,7 @@ export function NftCard({ nft, className, sizes }: NftCardProps) {
             alt={nftAlt(nft)}
             width={250}
             height={250}
+            priority={priority}
             sizes={sizes ?? '(max-width: 767px) 45vw, (max-width: 1023px) 30vw, 250px'}
             className="aspect-square w-[calc(100%-7px)] rounded-[16px] object-cover transition-transform duration-300 motion-safe:group-hover:scale-[1.02] md:w-[calc(100%-8px)]"
           />

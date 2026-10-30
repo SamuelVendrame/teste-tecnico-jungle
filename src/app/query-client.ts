@@ -1,5 +1,6 @@
 import { QueryClient } from '@tanstack/react-query'
-import { AxiosError } from 'axios'
+
+import { isApiClientError } from '@/api/client'
 
 /**
  * Política de cache e retries (documentada em ARCHITECTURE.md):
@@ -29,11 +30,11 @@ export const queryClient = new QueryClient({
   },
 })
 
+/**
+ * O interceptor do Axios (`src/api/client.ts`) rejeita sempre com `ApiClientError`:
+ * status 0 (rede/timeout), 5xx, 408 e 429 são transitórios. Requisição cancelada
+ * (resposta obsoleta descartada pelo `signal`) nunca é repetida.
+ */
 export function isTransientError(error: unknown): boolean {
-  if (error instanceof AxiosError) {
-    if (!error.response) return true // rede / timeout / cancelamento
-    const status = error.response.status
-    return status >= 500 || status === 408 || status === 429
-  }
-  return false
+  return isApiClientError(error) && error.isTransient && !error.canceled
 }

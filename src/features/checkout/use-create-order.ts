@@ -91,7 +91,7 @@ export function useCreateOrder({ userId, onStaleQuote }: Options) {
     onSuccess: (order: Order) => {
       closeAttempt()
       checkoutForm.clear()
-      pendingOrder.write(order.id)
+      pendingOrder.write(userId, order.id)
       queryClient.setQueryData(queryKeys.orders.detail(userId, order.id), order)
       void queryClient.invalidateQueries({ queryKey: queryKeys.orders.list(userId) })
       // A cotação é de uso único: a que estava em cache não vale mais.

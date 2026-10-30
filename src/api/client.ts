@@ -1,5 +1,7 @@
 import axios, { AxiosError, type AxiosRequestConfig } from 'axios'
 
+import { mocksReady } from '@/app/mocks-ready'
+
 import { HEADERS, apiError, type ApiError, type ApiErrorCode } from './contracts'
 
 /**
@@ -35,7 +37,9 @@ export const api = axios.create({
   headers: { Accept: 'application/json' },
 })
 
-api.interceptors.request.use((config) => {
+api.interceptors.request.use(async (config) => {
+  // Com mocks ligados, nenhuma requisição sai antes de o Service Worker do MSW estar ativo.
+  await mocksReady
   const token = tokenStore.getToken()
   if (token) config.headers.set(HEADERS.authorization, `Bearer ${token}`)
   const cartId = tokenStore.getGuestCartId()

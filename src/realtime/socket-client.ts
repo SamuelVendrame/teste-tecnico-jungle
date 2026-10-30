@@ -17,6 +17,7 @@ import type { Socket } from 'socket.io-client'
 import type { z } from 'zod'
 
 import { SOCKET_EVENTS, type sessionBindPayload } from '@/api/contracts'
+import { mocksReady } from '@/app/mocks-ready'
 import { sessionStore } from '@/features/session/session-store'
 
 import { resolveSocketEndpoint } from './socket-url'
@@ -70,20 +71,24 @@ function wire(s: Socket) {
 
 function loadSocket(): Promise<Socket> {
   if (socket) return Promise.resolve(socket)
-  socketPromise ??= import('socket.io-client').then(({ io }) => {
-    const { origin, enginePath } = resolveSocketEndpoint()
-    const s = io(origin, {
-      path: enginePath,
-      transports: ['websocket'],
-      autoConnect: false,
-      reconnection: true,
-      reconnectionDelay: 500,
-      reconnectionDelayMax: 3000,
+  // O interceptor de WebSocket do MSW precisa estar instalado antes de o
+  // engine.io-client ser avaliado; por isso esperamos os mocks subirem.
+  socketPromise ??= mocksReady
+    .then(() => import('socket.io-client'))
+    .then(({ io }) => {
+      const { origin, enginePath } = resolveSocketEndpoint()
+      const s = io(origin, {
+        path: enginePath,
+        transports: ['websocket'],
+        autoConnect: false,
+        reconnection: true,
+        reconnectionDelay: 500,
+        reconnectionDelayMax: 3000,
+      })
+      wire(s)
+      socket = s
+      return s
     })
-    wire(s)
-    socket = s
-    return s
-  })
   return socketPromise
 }
 

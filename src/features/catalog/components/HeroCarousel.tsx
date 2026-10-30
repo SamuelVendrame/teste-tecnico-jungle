@@ -9,6 +9,16 @@ import { cn } from '@/lib/utils'
 
 import { scrollToCatalog } from '../scroll-to-catalog'
 
+/**
+ * Primeiro destaque, renderizado antes de a API responder: é a imagem de LCP da
+ * home. Corresponde ao primeiro item de `featured.hero` da seed; se a seed mudar,
+ * o carrossel só troca a imagem quando os dados chegam.
+ */
+const HERO_PLACEHOLDER = {
+  src: '/images/nft-emerald-ape.webp',
+  alt: 'Arte em destaque da Kurio',
+}
+
 interface HeroProps {
   slides: Nft[] | undefined
   loading: boolean
@@ -89,7 +99,15 @@ export function DesktopHero({ slides, loading }: HeroProps) {
         </div>
         <div className="relative aspect-square w-full overflow-hidden rounded-[24px] bg-card">
           {loading || !current ? (
-            <div className="skeleton size-full rounded-[24px]" aria-hidden />
+            <NftImage
+              src={HERO_PLACEHOLDER.src}
+              alt={HERO_PLACEHOLDER.alt}
+              width={450}
+              height={450}
+              priority
+              sizes="(max-width: 1023px) 360px, 450px"
+              className="size-full rounded-[24px] object-cover"
+            />
           ) : (
             <Link
               to="/nft/$slug"
@@ -154,7 +172,15 @@ export function MobileHero({ slides, loading }: HeroProps) {
           </div>
           <div className="relative mt-1 h-[146px] w-[138px] shrink-0">
             {loading || !main ? (
-              <div aria-hidden className="skeleton size-[138px] rounded-[16px]" />
+              <NftImage
+                src={HERO_PLACEHOLDER.src}
+                alt={HERO_PLACEHOLDER.alt}
+                width={138}
+                height={138}
+                priority
+                sizes="138px"
+                className="size-[138px] rounded-[16px] object-cover"
+              />
             ) : (
               <>
                 <Link

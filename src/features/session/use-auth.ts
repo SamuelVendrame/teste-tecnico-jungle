@@ -3,8 +3,9 @@
  *
  * - Login/cadastro: grava a sessão, mescla o carrinho de visitante no do usuário
  *   e navega para `returnTo` (somente caminho da mesma origem) ou "/".
- * - Logout: encerra no servidor (falha ignorada), limpa a sessão e todo o cache
- *   privado do Query, volta para "/" e avisa com um toast.
+ * - Logout: encerra no servidor (falha ignorada), limpa a sessão, todo o cache
+ *   privado do Query e o estado de checkout persistido (rascunho com dados
+ *   pessoais, tentativa e pedido pendente), volta para "/" e avisa com um toast.
  */
 import { useMutation, useQueryClient, type Query, type QueryClient } from '@tanstack/react-query'
 import { useRouter } from '@tanstack/react-router'
@@ -13,6 +14,7 @@ import { toast } from 'sonner'
 import type { LoginInput, RegisterInput, Session } from '@/api/contracts'
 import { authApi, cartApi } from '@/api/endpoints'
 import { resolveReturnTo } from '@/features/auth/return-to'
+import { clearPrivateStorage } from '@/features/checkout/checkout-storage'
 import { PUBLIC_QUERY_ROOTS, queryKeys } from '@/lib/query-keys'
 
 import { sessionStore } from './session-store'
@@ -40,8 +42,10 @@ function readGuestCartId(): string | null {
 
 /** Conclui um login/cadastro: troca de usuário sem rastros, grava a sessão e mescla o carrinho. */
 async function establishSession(queryClient: QueryClient, session: Session) {
-  // Nada do usuário anterior (ou do visitante) pode sobreviver à nova sessão.
+  // Nada do usuário anterior (ou do visitante) pode sobreviver à nova sessão. O
+  // checkout persistido do PRÓPRIO usuário fica (sessão expirada no meio da compra).
   clearPrivateQueries(queryClient)
+  clearPrivateStorage(session.user.id)
   sessionStore.setSession(session)
   sessionStore.setReturnTo(null)
 
@@ -106,6 +110,7 @@ export function useLogout() {
     onSettled: () => {
       sessionStore.clear()
       clearPrivateQueries(queryClient)
+      clearPrivateStorage()
       router.history.replace('/')
       toast.success('Você saiu da sua conta')
     },

@@ -1,6 +1,8 @@
 /**
  * Pedidos: criação idempotente, revalidação da cotação, snapshot imutável,
  * reserva de estoque e resolução assíncrona (confirmado/recusado) com `order.updated`.
+ * Na confirmação, o próprio servidor tira do carrinho do comprador as linhas e
+ * quantidades compradas (o cliente não precisa estar em nenhuma página específica).
  *
  * Idempotência (escopo por usuário):
  * - mesma chave + mesmo payload  -> devolve o mesmo pedido (200), mesmo durante a criação;
@@ -23,6 +25,7 @@ import {
 import { mockEvents } from '../events'
 import { getScenario } from '../scenarios'
 import { sha256Hex, stableStringify, uid } from '../utils'
+import { consumeItems } from './cart'
 import { ApiProblem, problems } from './errors'
 import { adjustAvailability } from './nfts'
 import { computeQuote, createQuote, hasBlockingIssues } from './quote'
@@ -216,10 +219,14 @@ export async function resolveOrder(
   order.version += 1
   commit()
 
-  // Recusa devolve a reserva de estoque.
+  // Recusa devolve a reserva de estoque e preserva o carrinho; confirmação consome
+  // do carrinho só o que foi comprado (bump de `version`) ANTES do evento, para que
+  // o refetch disparado por `order.updated` já veja o carrinho atualizado.
   if (status === 'declined') {
     for (const line of order.snapshot.lines)
       adjustAvailability(line.nftId, line.editionId, line.quantity)
+  } else {
+    consumePurchasedLines(order)
   }
 
   mockEvents.emit({
@@ -237,6 +244,19 @@ export async function resolveOrder(
     },
   })
   return order
+}
+
+function consumePurchasedLines(order: Order): void {
+  const key = userCartKey(order.userId)
+  if (!getDb().carts[key]) return
+  consumeItems(
+    { key, cartId: `cart_${order.userId}`, userId: order.userId },
+    order.snapshot.lines.map((l) => ({
+      nftId: l.nftId,
+      editionId: l.editionId,
+      quantity: l.quantity,
+    })),
+  )
 }
 
 /** Reagenda a resolução de todo pedido pendente (carga do módulo, avanço de relógio). */

@@ -1,9 +1,15 @@
 /**
- * Estado local (somente UI) da conexão simulada de cada carteira.
- * Compartilhado entre a página de carteiras e o checkout, que pode reaproveitar
- * `useWalletConnection` / `setWalletConnection`. Não é persistido nem enviado à API.
+ * Estado da conexão de cada carteira, compartilhado entre a página de carteiras
+ * e o checkout (`useWalletConnection` / `setWalletConnection`). Não é persistido.
+ *
+ * Conectar passa pela API (`POST /wallets/:id/connect`, simulada no MSW): o
+ * tempo de aprovação é a latência do cenário e a recusa é um 409 WALLET_REFUSED.
+ * Nenhuma resposta é inventada aqui.
  */
 import { useSyncExternalStore } from 'react'
+
+import { isApiClientError } from '@/api/client'
+import { walletApi } from '@/api/endpoints'
 
 export type WalletConnectionState = 'disconnected' | 'connecting' | 'connected' | 'refused'
 
@@ -41,9 +47,36 @@ export function useWalletConnection(walletId: string | null | undefined): Wallet
   )
 }
 
-/** Simulação da página de carteiras: conectar leva um instante; conectada, desconecta na hora. */
-export const SIMULATED_CONNECT_DELAY_MS = 900
+const attempts = new Map<string, number>()
 
+/**
+ * Pede a conexão à API. Resultado: `connected`, `refused` (409 WALLET_REFUSED) ou
+ * `disconnected` (outra falha). Se nesse meio-tempo a carteira foi desconectada,
+ * a tela saiu ou outra tentativa começou, a resposta antiga é descartada e o
+ * estado atual é devolvido.
+ */
+export async function connectWallet(
+  walletId: string,
+  options: { simulateRefusal?: boolean } = {},
+): Promise<WalletConnectionState> {
+  const attempt = (attempts.get(walletId) ?? 0) + 1
+  attempts.set(walletId, attempt)
+  setWalletConnection(walletId, 'connecting')
+  let next: WalletConnectionState
+  try {
+    await walletApi.connect(walletId, options)
+    next = 'connected'
+  } catch (error) {
+    next = isApiClientError(error) && error.code === 'WALLET_REFUSED' ? 'refused' : 'disconnected'
+  }
+  if (attempts.get(walletId) !== attempt || getWalletConnection(walletId) !== 'connecting') {
+    return getWalletConnection(walletId)
+  }
+  setWalletConnection(walletId, next)
+  return next
+}
+
+/** Página de carteiras: conecta pela API; conectada, desconecta na hora. */
 export function toggleSimulatedConnection(walletId: string) {
   const current = getWalletConnection(walletId)
   if (current === 'connecting') return
@@ -51,10 +84,5 @@ export function toggleSimulatedConnection(walletId: string) {
     setWalletConnection(walletId, 'disconnected')
     return
   }
-  setWalletConnection(walletId, 'connecting')
-  setTimeout(() => {
-    if (getWalletConnection(walletId) === 'connecting') {
-      setWalletConnection(walletId, 'connected')
-    }
-  }, SIMULATED_CONNECT_DELAY_MS)
+  void connectWallet(walletId)
 }

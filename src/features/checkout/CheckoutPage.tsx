@@ -90,13 +90,13 @@ export function CheckoutPage() {
       name: user?.name ?? '',
       email: user?.email ?? '',
       document: '',
-      ...checkoutForm.read(),
+      ...checkoutForm.read(userId),
     },
   })
   useEffect(() => {
-    const sub = form.watch((values) => checkoutForm.write(values))
+    const sub = form.watch((values) => checkoutForm.write(userId, values))
     return () => sub.unsubscribe()
-  }, [form])
+  }, [form, userId])
 
   // Passo 3: cotação na rede escolhida.
   const quote = useQuote(cart, network)
@@ -176,6 +176,30 @@ export function CheckoutPage() {
     )
   }
   if (cart.items.length === 0) {
+    // O servidor pode ter confirmado um pedido cuja resposta não chegou (timeout) e
+    // já consumido o carrinho: a tentativa em aberto segue recuperável pela mesma chave.
+    if (createOrder.pending || (createOrder.hasOpenAttempt && createOrder.problem)) {
+      return (
+        <Container className="pt-8 pb-16">
+          {header}
+          <div className="mt-6 max-w-[763px]">
+            {createOrder.problem ? (
+              <ProblemAlert
+                problem={createOrder.problem}
+                retrying={createOrder.pending}
+                onRetry={createOrder.retry}
+                onDismiss={createOrder.dismissProblem}
+              />
+            ) : (
+              <p role="status" className="flex items-center gap-2 text-sm text-text-primary">
+                <LoaderCircleIcon aria-hidden className="size-4 motion-safe:animate-spin" />
+                Confirmando pedido…
+              </p>
+            )}
+          </div>
+        </Container>
+      )
+    }
     return (
       <Container className="pt-8 pb-16">
         {header}

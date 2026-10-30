@@ -12,7 +12,8 @@
  *   detalhe é chaveado por slug), todo ['cart', owner] (snapshot de preço e
  *   disponibilidade da edição + `nft.version` do item) e invalida ['quote'].
  * - `order.updated`: ['orders', userId, 'detail', orderId] e invalida
- *   ['orders', userId, 'list'].
+ *   ['orders', userId, 'list']. Se `confirmed`, invalida também ['cart', userId]
+ *   (o servidor já tirou do carrinho os itens comprados) e ['quote'].
  */
 import type { QueryClient, QueryKey } from '@tanstack/react-query'
 
@@ -286,6 +287,12 @@ export function applyOrderUpdated(
 
   restartInFlight(queryClient, detailKey)
   void queryClient.invalidateQueries({ queryKey: queryKeys.orders.list(userId) })
+  // Confirmação consome os itens comprados no servidor: badge e página do carrinho
+  // se atualizam em qualquer rota, sem depender da página do pedido estar aberta.
+  if (event.payload.status === 'confirmed') {
+    void queryClient.invalidateQueries({ queryKey: queryKeys.cart(userId) })
+    void queryClient.invalidateQueries({ queryKey: ['quote'] })
+  }
 
   if (isTerminal(event.payload.status) && previousStatus !== event.payload.status) {
     realtimeNotices.push({

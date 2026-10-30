@@ -221,7 +221,7 @@ function Results({
     >
       {data.items.map((nft, index) => (
         <li key={nft.id} className={cn(index % 2 === 1 && 'max-sm:translate-y-8')}>
-          <NftCard nft={nft} />
+          <NftCard nft={nft} priority={index < 3} />
         </li>
       ))}
     </ul>

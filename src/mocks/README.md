@@ -6,7 +6,7 @@ chamadas do Axios para `/api/*` e responde a partir de um banco em memória pers
 (request, response, erros e eventos) são os schemas Zod de `src/api/contracts.ts`: os handlers
 validam as entradas com os mesmos schemas que os formulários usam.
 
-A camada é ligada por `VITE_ENABLE_MSW=true` (dev, preview e build de demonstração). O transporte
+A camada fica ligada por padrão (dev, preview e build de demonstração; só `VITE_ENABLE_MSW=false` desliga). O transporte
 Socket.IO simulado está em `socket.ts` (documentado em `README-socket.md`). Ele assina o barramento
 `events.ts`, no qual estes handlers publicam `nft.updated` e `order.updated`.
 
@@ -87,6 +87,7 @@ responde `401 UNAUTHORIZED`. Qualquer outra rota `/api/*` responde `404 NOT_FOUN
 | `GET /wallets` | Bearer | 200 `{ items }` | 401 |
 | `POST /wallets` | Bearer | 201 `Wallet` | 409 WALLET_LIMIT (`details.kind`), 422 |
 | `PATCH /wallets/:id` | Bearer | 200 `Wallet` | 403, 404, 409 WALLET_LIMIT, 422 |
+| `POST /wallets/:id/connect` `{ simulateRefusal? }` | Bearer | 200 `{ status: 'connected' }` após a latência do cenário (aprovação simulada na carteira) | 403, 404, 409 WALLET_REFUSED (com `simulateRefusal: true`) |
 
 Em todos os cenários, qualquer rota pode responder 503 SERVICE_UNAVAILABLE (cenário `flaky`),
 falhar com erro de rede (cenário `offline`) ou devolver a falha injetada por `/__mock/fail-next`.
@@ -108,7 +109,8 @@ falhar com erro de rede (cenário `offline`) ou devolver a falha injetada por `/
   momento em que ele foi adicionado ou alterado, enquanto `available` e `maxPerOrder` são lidos ao
   vivo. O merge soma as quantidades, aplica o teto e descarta edições esgotadas; se o carrinho do
   usuário não tiver cupom, herda o do visitante. Depois disso o carrinho do visitante é apagado. O
-  consume subtrai apenas as quantidades informadas.
+  consume subtrai apenas as quantidades informadas; a app não o chama, porque a confirmação de um
+  pedido já consome o carrinho no servidor (ver **Pedido**). Fica na API por completude.
 - **Cotação.** As linhas são recalculadas com os preços atuais do catálogo e o cupom é aplicado
   (o desconto nunca passa do subtotal). A taxa depende da rede: ethereum 0.0021, polygon 0.0003,
   solana 0.0001. `issues` sinaliza três situações: `price-changed`, quando o preço difere do snapshot
@@ -128,8 +130,10 @@ falhar com erro de rede (cenário `offline`) ou devolver a falha injetada por `/
      colecionador), reserva o estoque (um `nft.updated` por linha) e invalida a cotação.
 
   A resolução acontece 2,5 s depois. Um pedido confirmado recebe `txHash` (`0x` + 64 hex) e
-  `explorerUrl` (etherscan, polygonscan ou solscan, conforme a rede). Um pedido recusado recebe
-  `declineReason` e devolve o estoque. Nos dois casos sai um `order.updated`. Confirmado e recusado
+  `explorerUrl` (etherscan, polygonscan ou solscan, conforme a rede) e o servidor remove do carrinho
+  do comprador só as linhas e quantidades compradas (a `version` do carrinho sobe). Um pedido
+  recusado recebe `declineReason`, devolve o estoque e preserva o carrinho. Nos dois casos sai um
+  `order.updated`, emitido depois dessas mudanças. Confirmado e recusado
   são estados terminais. Pedidos pendentes sobrevivem a um reload: `orderJobs` guarda o horário
   absoluto da resolução, que é reagendada quando o módulo carrega.
 

@@ -76,6 +76,7 @@ export const apiErrorCode = z.enum([
   'COUPON_INVALID', // 422
   'COUPON_EXPIRED', // 422
   'WALLET_LIMIT', // 409
+  'WALLET_REFUSED', // 409 (usuário recusou a conexão na carteira)
   'SERVICE_UNAVAILABLE', // 503 (falha transitória)
   'INTERNAL_ERROR', // 500
 ])
@@ -195,6 +196,12 @@ export const walletInput = z.object({
   provider: walletProvider,
 })
 export type WalletInput = z.infer<typeof walletInput>
+
+/** POST /wallets/:id/connect. `simulateRefusal` faz o mock responder 409 WALLET_REFUSED. */
+export const walletConnectInput = z.object({ simulateRefusal: z.boolean().optional() })
+export type WalletConnectInput = z.infer<typeof walletConnectInput>
+export const walletConnection = z.object({ status: z.literal('connected') })
+export type WalletConnection = z.infer<typeof walletConnection>
 
 // ---------------------------------------------------------------------------
 // NFTs e catálogo
