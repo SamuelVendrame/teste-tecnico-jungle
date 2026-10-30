@@ -70,3 +70,100 @@ export function useAddToCart() {
     },
   })
 }
+
+// ---------------------------------------------------------------------------
+// Mutations da página do carrinho
+// ---------------------------------------------------------------------------
+
+/**
+ * Todas as mutations do carrinho gravam no cache o `Cart` devolvido pela API
+ * (fonte da verdade). Elas compartilham um `scope` para rodar em série: duas
+ * alterações rápidas nunca chegam fora de ordem ao servidor.
+ */
+function cartScope(ownerId: string) {
+  return { id: `cart:${ownerId}` }
+}
+
+export function cartMutationErrorMessage(error: unknown, fallback: string): string {
+  if (!isApiClientError(error)) return fallback
+  switch (error.code) {
+    case 'OUT_OF_STOCK':
+    case 'EDITION_UNAVAILABLE':
+      return addToCartErrorMessage(error)
+    case 'NOT_FOUND':
+      return 'Este item não está mais no carrinho.'
+    default:
+      return error.isTransient ? `${fallback} Verifique sua conexão.` : error.message || fallback
+  }
+}
+
+/** Altera a quantidade com atualização otimista e rollback em caso de erro. */
+export function useUpdateCartItem() {
+  const queryClient = useQueryClient()
+  const ownerId = useCartOwnerId()
+  const key = queryKeys.cart(ownerId)
+  return useMutation({
+    mutationKey: ['cart', ownerId, 'update'],
+    scope: cartScope(ownerId),
+    mutationFn: ({ itemId, quantity }: { itemId: string; quantity: number }) =>
+      cartApi.updateItem(itemId, quantity),
+    onMutate: async ({ itemId, quantity }) => {
+      await queryClient.cancelQueries({ queryKey: key })
+      const previous = queryClient.getQueryData<Cart>(key)
+      if (previous) {
+        queryClient.setQueryData<Cart>(key, {
+          ...previous,
+          items: previous.items.map((i) => (i.id === itemId ? { ...i, quantity } : i)),
+        })
+      }
+      return { previous }
+    },
+    onError: (error, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(key, context.previous)
+      toast.error(cartMutationErrorMessage(error, 'Não foi possível alterar a quantidade.'))
+      void queryClient.invalidateQueries({ queryKey: key })
+    },
+    onSuccess: (cart) => {
+      // Outra alteração ainda na fila: a resposta dela é a que vale (evita "piscar").
+      if (queryClient.isMutating({ mutationKey: ['cart', ownerId] }) > 1) return
+      queryClient.setQueryData(key, cart)
+    },
+  })
+}
+
+export function useRemoveCartItem() {
+  const queryClient = useQueryClient()
+  const ownerId = useCartOwnerId()
+  return useMutation({
+    mutationKey: ['cart', ownerId, 'remove'],
+    scope: cartScope(ownerId),
+    mutationFn: (itemId: string) => cartApi.removeItem(itemId),
+    onSuccess: (cart) => queryClient.setQueryData(queryKeys.cart(ownerId), cart),
+    onError: (error) => {
+      toast.error(cartMutationErrorMessage(error, 'Não foi possível remover o item.'))
+      void queryClient.invalidateQueries({ queryKey: queryKeys.cart(ownerId) })
+    },
+  })
+}
+
+/** Aplica (código) ou remove (null) o cupom. Erros COUPON_* ficam com o formulário. */
+export function useSetCoupon() {
+  const queryClient = useQueryClient()
+  const ownerId = useCartOwnerId()
+  return useMutation({
+    mutationKey: ['cart', ownerId, 'coupon'],
+    scope: cartScope(ownerId),
+    mutationFn: (couponCode: string | null) => cartApi.setCoupon(couponCode),
+    onSuccess: (cart) => queryClient.setQueryData(queryKeys.cart(ownerId), cart),
+  })
+}
+
+export function couponErrorMessage(error: unknown): string {
+  if (isApiClientError(error)) {
+    if (error.code === 'COUPON_INVALID') return 'Cupom inválido'
+    if (error.code === 'COUPON_EXPIRED') return 'Cupom expirado'
+    if (error.isTransient) return 'Não foi possível validar o cupom. Tente novamente.'
+    return error.details?.couponCode?.[0] ?? error.message
+  }
+  return 'Não foi possível validar o cupom. Tente novamente.'
+}

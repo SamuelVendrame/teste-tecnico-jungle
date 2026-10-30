@@ -1,5 +1,29 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
+import { cartApi } from '@/api/endpoints'
+import { CheckoutPage } from '@/features/checkout/CheckoutPage'
+import { requireAuth } from '@/features/session/require-auth'
+import { sessionStore } from '@/features/session/session-store'
+import { queryKeys } from '@/lib/query-keys'
+
+/**
+ * Rota privada. `requireAuth` recebe o `location` inteiro: o `href` (caminho +
+ * busca) vira o `returnTo` do login, então quem perde a sessão no meio do
+ * checkout volta exatamente para cá (com o rascunho do formulário preservado).
+ */
 export const Route = createFileRoute('/checkout')({
-  component: () => <main className="p-8">Rota /checkout em construção.</main>,
+  beforeLoad: ({ location }) => requireAuth(location),
+  loader: async ({ context: { queryClient } }) => {
+    const userId = sessionStore.getState().user?.id
+    if (!userId) return
+    const cart = await queryClient
+      .ensureQueryData({
+        queryKey: queryKeys.cart(userId),
+        queryFn: ({ signal }) => cartApi.get({ signal }),
+      })
+      // Falha ao ler o carrinho: a página mostra o erro com 'Tentar novamente'.
+      .catch(() => null)
+    if (cart && cart.items.length === 0) throw redirect({ to: '/cart', replace: true })
+  },
+  component: CheckoutPage,
 })

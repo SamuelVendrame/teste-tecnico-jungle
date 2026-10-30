@@ -10,6 +10,9 @@ import { MAIN_CONTENT_ID, SkipLink } from '@/components/layout/SkipLink'
 import { TAB_BAR_SPACER, useTabBarVisible } from '@/components/layout/tab-bar'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { DevPanel } from '@/features/dev-panel/DevPanel'
+import { SessionLifecycle } from '@/features/session/session-lifecycle'
+import { useRealtime } from '@/realtime/use-realtime'
 import { cn } from '@/lib/utils'
 
 export interface RouterContext {
@@ -34,6 +37,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
  */
 function RootLayout() {
   const tabBarVisible = useTabBarVisible()
+  // Socket.IO (eventos nft.updated / order.updated) vive no ciclo de vida do shell.
+  useRealtime()
   return (
     <TooltipProvider delayDuration={200}>
       <SkipLink />
@@ -45,6 +50,8 @@ function RootLayout() {
         <Footer />
       </div>
       <MobileTabBar />
+      <SessionLifecycle />
+      <DevPanel />
       <LiveRegion />
       <Toaster position="bottom-right" toastOptions={TOAST_OPTIONS} />
     </TooltipProvider>
