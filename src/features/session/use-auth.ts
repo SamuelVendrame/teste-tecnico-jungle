@@ -1,31 +1,113 @@
 /**
- * Hooks de autenticação (implementação completa na etapa seguinte).
- * As assinaturas abaixo são o contrato consumido pelo shell e pelas páginas.
+ * Hooks de autenticação e ciclo de vida da sessão.
+ *
+ * - Login/cadastro: grava a sessão, mescla o carrinho de visitante no do usuário
+ *   e navega para `returnTo` (somente caminho da mesma origem) ou "/".
+ * - Logout: encerra no servidor (falha ignorada), limpa a sessão e todo o cache
+ *   privado do Query, volta para "/" e avisa com um toast.
  */
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient, type Query, type QueryClient } from '@tanstack/react-query'
+import { useRouter } from '@tanstack/react-router'
+import { toast } from 'sonner'
 
-import type { LoginInput, RegisterInput } from '@/api/contracts'
-import { authApi } from '@/api/endpoints'
+import type { LoginInput, RegisterInput, Session } from '@/api/contracts'
+import { authApi, cartApi } from '@/api/endpoints'
+import { resolveReturnTo } from '@/features/auth/return-to'
+import { PUBLIC_QUERY_ROOTS, queryKeys } from '@/lib/query-keys'
 
 import { sessionStore } from './session-store'
 
-export function useLogin() {
+/** Mesma chave do session-store (não exposta por ele); só lemos, nunca criamos o id aqui. */
+const GUEST_CART_KEY = 'kurio:guest-cart'
+
+function isPrivateQuery(query: Query): boolean {
+  return !(PUBLIC_QUERY_ROOTS as readonly unknown[]).includes(query.queryKey[0])
+}
+
+/** Remove do cache tudo que não é público, cancelando consultas em andamento. */
+export function clearPrivateQueries(queryClient: QueryClient) {
+  void queryClient.cancelQueries({ predicate: isPrivateQuery })
+  queryClient.removeQueries({ predicate: isPrivateQuery })
+}
+
+function readGuestCartId(): string | null {
+  try {
+    return localStorage.getItem(GUEST_CART_KEY)
+  } catch {
+    return null
+  }
+}
+
+/** Conclui um login/cadastro: troca de usuário sem rastros, grava a sessão e mescla o carrinho. */
+async function establishSession(queryClient: QueryClient, session: Session) {
+  // Nada do usuário anterior (ou do visitante) pode sobreviver à nova sessão.
+  clearPrivateQueries(queryClient)
+  sessionStore.setSession(session)
+  sessionStore.setReturnTo(null)
+
+  const guestCartId = readGuestCartId()
+  if (!guestCartId) return
+  try {
+    const merged = await cartApi.merge(guestCartId)
+    sessionStore.resetGuestCartId()
+    queryClient.setQueryData(queryKeys.cart(session.user.id), merged)
+    queryClient.removeQueries({ queryKey: queryKeys.cart('guest') })
+  } catch {
+    // Mantém o id do visitante para uma nova tentativa no próximo login.
+    toast.warning('Não foi possível sincronizar o carrinho de visitante.')
+  }
+}
+
+interface SignInOptions {
+  /** `returnTo` da URL; cai para o valor guardado no store quando ausente. */
+  returnTo?: string
+}
+
+function useSignIn<TInput>(
+  options: SignInOptions,
+  authenticate: (input: TInput) => Promise<Session>,
+) {
+  const queryClient = useQueryClient()
+  const router = useRouter()
+
   return useMutation({
-    mutationFn: (input: LoginInput) => authApi.login(input),
-    onSuccess: (session) => sessionStore.setSession(session),
+    mutationFn: async (input: TInput) => {
+      const target = resolveReturnTo(options.returnTo ?? sessionStore.getState().returnTo)
+      const session = await authenticate(input)
+      await establishSession(queryClient, session)
+      return { session, target }
+    },
+    onSuccess: ({ target }) => {
+      router.history.replace(target)
+    },
   })
 }
 
-export function useRegister() {
-  return useMutation({
-    mutationFn: (input: RegisterInput) => authApi.register(input),
-    onSuccess: (session) => sessionStore.setSession(session),
-  })
+export function useLogin(options: SignInOptions = {}) {
+  return useSignIn(options, (input: LoginInput) => authApi.login(input))
+}
+
+export function useRegister(options: SignInOptions = {}) {
+  return useSignIn(options, (input: RegisterInput) => authApi.register(input))
 }
 
 export function useLogout() {
+  const queryClient = useQueryClient()
+  const router = useRouter()
+
   return useMutation({
-    mutationFn: () => authApi.logout(),
-    onSettled: () => sessionStore.clear(),
+    mutationFn: async () => {
+      try {
+        await authApi.logout()
+      } catch {
+        // O servidor pode já ter invalidado o token; o cliente encerra de qualquer forma.
+      }
+    },
+    onSettled: () => {
+      sessionStore.clear()
+      clearPrivateQueries(queryClient)
+      router.history.replace('/')
+      toast.success('Você saiu da sua conta')
+    },
   })
 }
