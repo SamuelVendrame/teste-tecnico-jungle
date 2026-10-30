@@ -94,9 +94,45 @@ export async function loginViaApi(page: Page, user: keyof typeof USERS = 'ana') 
 export async function loginViaUi(page: Page, user: keyof typeof USERS = 'ana') {
   const { email, password } = USERS[user]
   await page.goto('/login')
-  await page.getByLabel(/e-mail/i).fill(email)
-  await page.getByLabel(/^senha/i).fill(password)
-  await page.getByRole('button', { name: /entrar/i }).click()
+  await page.getByLabel('E-mail', { exact: true }).fill(email)
+  await page.getByLabel('Senha', { exact: true }).fill(password)
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
+}
+
+/**
+ * Expira no servidor simulado a sessão do usuário logado. O endpoint de controle
+ * identifica a sessão pelo Bearer, então o token é lido do localStorage da página.
+ */
+export async function expireSession(page: Page) {
+  return page.evaluate(async () => {
+    const raw = localStorage.getItem('kurio:session')
+    const token = raw ? (JSON.parse(raw) as { token?: string }).token : undefined
+    const res = await fetch('/__mock/session/expire', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token ?? ''}` },
+    })
+    return (await res.json()) as { ok: boolean; expired: boolean }
+  })
+}
+
+/** Extrai o número de textos como "1.19 ETH". */
+export function parseEth(text: string | null): number {
+  const match = /([\d.]+)\s*ETH/.exec(text ?? '')
+  if (!match) throw new Error(`Preço não reconhecido: "${text}"`)
+  return Number(match[1])
+}
+
+/** Aguarda todas as imagens da página terminarem de carregar (regressão visual). */
+export async function waitForImages(page: Page) {
+  // Imagens abaixo da dobra são lazy: força o carregamento antes de esperar.
+  await page.evaluate(() => {
+    document.querySelectorAll('img').forEach((img) => {
+      img.loading = 'eager'
+    })
+  })
+  await page.waitForFunction(() =>
+    Array.from(document.images).every((img) => img.complete && img.naturalWidth > 0),
+  )
 }
 
 export const test = base.extend<{ isMobile: boolean }>({

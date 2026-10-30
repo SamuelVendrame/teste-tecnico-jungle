@@ -12,7 +12,7 @@
     "format": "prettier --write .",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:update": "playwright test --update-snapshots",
+    "test:e2e:update": "playwright test --update-snapshots=all",
     "lighthouse": "node scripts/lighthouse.mjs"
   },
   "dependencies": {
