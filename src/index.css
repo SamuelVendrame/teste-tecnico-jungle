@@ -1,0 +1,138 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Design tokens extraídos do Figma (design/tokens.json).
+ * O tema é único e escuro; shadcn/ui é mapeado sobre essas variáveis.
+ */
+:root {
+  --kurio-ink: #140d0a;
+  --kurio-surface-card: #241612;
+  --kurio-surface-dark: #38220f;
+  --kurio-border: #3f2319;
+  --kurio-border-soft: #55321f;
+  --kurio-primary: #d28a4c;
+  --kurio-secondary: #b39463;
+  --kurio-text-primary: #f7f3ec;
+  --kurio-text-secondary: #cfb28c;
+  --kurio-text-accent: #e89b55;
+  --kurio-foreground: #f5f1eb;
+  --kurio-background-elevated: #fbfbfb;
+
+  --radius: 0.5rem;
+
+  /* shadcn/ui semantic tokens */
+  --background: var(--kurio-ink);
+  --foreground: var(--kurio-text-primary);
+  --card: var(--kurio-surface-card);
+  --card-foreground: var(--kurio-text-primary);
+  --popover: var(--kurio-surface-card);
+  --popover-foreground: var(--kurio-text-primary);
+  --primary: var(--kurio-primary);
+  --primary-foreground: var(--kurio-ink);
+  --secondary: var(--kurio-surface-dark);
+  --secondary-foreground: var(--kurio-text-primary);
+  --muted: var(--kurio-surface-dark);
+  --muted-foreground: var(--kurio-text-secondary);
+  --accent: var(--kurio-surface-dark);
+  --accent-foreground: var(--kurio-text-accent);
+  --destructive: #e5484d;
+  --destructive-foreground: #fff;
+  --border: var(--kurio-border);
+  --input: var(--kurio-border-soft);
+  --ring: var(--kurio-primary);
+  --chart-1: var(--kurio-primary);
+  --chart-2: var(--kurio-secondary);
+  --chart-3: var(--kurio-text-accent);
+  --chart-4: var(--kurio-text-secondary);
+  --chart-5: var(--kurio-border-soft);
+}
+
+@theme inline {
+  --font-sans: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-mono: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-ink: var(--kurio-ink);
+  --color-surface-card: var(--kurio-surface-card);
+  --color-surface-dark: var(--kurio-surface-dark);
+  --color-border-soft: var(--kurio-border-soft);
+  --color-brand: var(--kurio-primary);
+  --color-brand-secondary: var(--kurio-secondary);
+  --color-text-primary: var(--kurio-text-primary);
+  --color-text-secondary: var(--kurio-text-secondary);
+  --color-text-accent: var(--kurio-text-accent);
+  --color-elevated: var(--kurio-background-elevated);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --animate-shimmer: shimmer 1.6s linear infinite;
+
+  @keyframes shimmer {
+    from {
+      background-position: -200% 0;
+    }
+    to {
+      background-position: 200% 0;
+    }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+}
+
+@layer utilities {
+  /* Skeleton com shimmer; desliga a animação quando o usuário prefere movimento reduzido */
+  .skeleton {
+    @apply rounded-md bg-surface-dark;
+    background-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in oklab, var(--kurio-border-soft) 70%, transparent) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: var(--animate-shimmer);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton {
+      animation: none;
+    }
+  }
+}
