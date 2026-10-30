@@ -20,7 +20,7 @@ test.describe('Conta: cadastro, login, logout e sessão', () => {
     await page.getByLabel('E-mail', { exact: true }).fill(email)
     await page.getByLabel('Senha', { exact: true }).fill('Senha123')
     await page.getByLabel('Confirmar senha').fill('Senha123')
-    await page.getByRole('button', { name: 'Criar conta' }).click()
+    await page.getByRole('button', { name: 'Criar perfil' }).click()
 
     await expect(page).toHaveURL(/\/$/)
     await expect(page.locator('ul[aria-label*="NFTs, página"]')).toBeVisible()
@@ -34,7 +34,7 @@ test.describe('Conta: cadastro, login, logout e sessão', () => {
     await page.getByLabel('E-mail', { exact: true }).fill(USERS.ana.email)
     await page.getByLabel('Senha', { exact: true }).fill('Senha123')
     await page.getByLabel('Confirmar senha').fill('Senha123')
-    await page.getByRole('button', { name: 'Criar conta' }).click()
+    await page.getByRole('button', { name: 'Criar perfil' }).click()
 
     const email = page.getByLabel('E-mail', { exact: true })
     await expect(page.getByText('Este e-mail já está cadastrado')).toBeVisible()
@@ -54,7 +54,7 @@ test.describe('Conta: cadastro, login, logout e sessão', () => {
     await page.getByLabel('E-mail', { exact: true }).fill('carla@kurio.dev')
     await page.getByLabel('Senha', { exact: true }).fill('abc')
     await page.getByLabel('Confirmar senha').fill('outra')
-    await page.getByRole('button', { name: 'Criar conta' }).click()
+    await page.getByRole('button', { name: 'Criar perfil' }).click()
 
     await expect(page.getByLabel('Senha', { exact: true })).toHaveAttribute('aria-invalid', 'true')
     await expect(page.getByLabel('Confirmar senha')).toHaveAttribute('aria-invalid', 'true')

@@ -23,6 +23,14 @@ import { RelatedNfts } from './components/RelatedNfts'
 import { nftDetailOptions } from './queries'
 import { useNftPurchase, type NftPurchase } from './use-nft-purchase'
 
+/** O Figma mostra sempre 4 miniaturas: completa a coluna repetindo as variantes disponíveis. */
+const GALLERY_SIZE = 4
+
+function galleryImages(nft: Nft): string[] {
+  const unique = [...new Set([nft.imageUrl, ...nft.gallery])]
+  return Array.from({ length: GALLERY_SIZE }, (_, index) => unique[index % unique.length]!)
+}
+
 export function NftDetailPage({ slug }: { slug: string }) {
   const { data: nft } = useSuspenseQuery(nftDetailOptions(slug))
   // `key` reinicia edição/quantidade ao navegar entre NFTs relacionados.
@@ -33,7 +41,7 @@ function NftDetail({ nft }: { nft: Nft }) {
   const purchase = useNftPurchase(nft)
   const addToCart = useAddToCart()
   const navigate = useNavigate()
-  const images = nft.gallery.length > 0 ? nft.gallery : [nft.imageUrl]
+  const images = galleryImages(nft)
 
   useEffect(() => {
     document.title = `${nft.name} · Kurio`

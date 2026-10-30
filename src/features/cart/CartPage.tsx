@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { sessionStore, useSession } from '@/features/session/session-store'
 import { cn } from '@/lib/utils'
 
+import { AlsoViewed } from './components/AlsoViewed'
 import { CART_GRID } from './components/cart-grid'
 import { CartItemRow } from './components/CartItemRow'
 import { CartSummary } from './components/CartSummary'
@@ -87,6 +88,7 @@ export function CartPage() {
             </Button>
           }
         />
+        <AlsoViewed slug={undefined} />
       </Container>
     )
   }
@@ -214,6 +216,8 @@ export function CartPage() {
           onCheckout={goToCheckout}
         />
       </div>
+
+      <AlsoViewed slug={cart.items[0]?.nft.slug} />
     </Container>
   )
 }

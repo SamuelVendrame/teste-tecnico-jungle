@@ -281,24 +281,23 @@ export function CheckoutPage() {
         onSubmit={(e) => void onConfirm(e)}
         className="mt-5 flex flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,763px)_405px] lg:items-start lg:justify-between lg:gap-10"
       >
-        <CollectorFields
-          form={form}
-          network={network}
-          onNetworkChange={setNetworkChoice}
-          networkDisabled={createOrder.pending}
-        />
-
-        <div className="flex flex-col gap-6">
-          <ReviewSection
-            cart={cart}
-            quote={quote.data}
-            refreshing={quote.isPlaceholderData || (quote.isFetching && !quote.isPending)}
-            failed={quote.isError}
-            onRetry={() => void quote.refetch()}
-            secondsLeft={live ? secondsLeft : null}
+        {/*
+          Desktop: coluna esquerda = colecionador + carteira/rede; direita = revisão e confirmação.
+          Mobile (Figma compacto): as colunas viram `contents` e a ordem é carteira, dados,
+          revisão/totais e o botão fixo no rodapé.
+        */}
+        <div className="contents lg:flex lg:flex-col lg:gap-10">
+          <CollectorFields
+            className="order-2 lg:order-none"
+            form={form}
+            network={network}
+            onNetworkChange={setNetworkChoice}
+            networkDisabled={createOrder.pending}
+            username={user?.username}
           />
 
           <WalletSection
+            className="order-1 lg:order-none"
             wallets={wallets}
             loading={walletsQuery.isPending}
             failed={walletsQuery.isError}
@@ -311,9 +310,22 @@ export function CheckoutPage() {
             }}
             disabled={createOrder.pending}
           />
+        </div>
+
+        <div className="contents lg:flex lg:flex-col lg:gap-6">
+          <ReviewSection
+            className="order-3 lg:order-none"
+            cart={cart}
+            quote={quote.data}
+            refreshing={quote.isPlaceholderData || (quote.isFetching && !quote.isPending)}
+            failed={quote.isError}
+            onRetry={() => void quote.refetch()}
+            secondsLeft={live ? secondsLeft : null}
+          />
 
           {createOrder.problem && (
             <ProblemAlert
+              className="order-4 lg:order-none"
               problem={createOrder.problem}
               retrying={createOrder.pending}
               onRetry={createOrder.retry}
@@ -321,7 +333,7 @@ export function CheckoutPage() {
             />
           )}
 
-          <div className="flex flex-col gap-3">
+          <div className="sticky bottom-0 z-10 order-5 -mx-4 -mb-10 flex flex-col gap-3 bg-linear-to-t from-background from-80% to-transparent px-4 pt-6 pb-6 sm:-mx-6 sm:px-6 md:static md:mx-0 md:mb-0 md:bg-none md:p-0 lg:order-none">
             {totalForBar && (
               <p className="flex items-baseline justify-end gap-6 text-lg font-bold md:hidden">
                 <span>Total:</span>
@@ -372,17 +384,20 @@ function ProblemAlert({
   retrying,
   onRetry,
   onDismiss,
+  className,
 }: {
   problem: OrderProblem
   retrying: boolean
   onRetry: () => void
   onDismiss: () => void
+  className?: string
 }) {
   return (
     <div
       role="alert"
       className={cn(
         'flex flex-col gap-3 rounded-lg border px-4 py-3 text-sm',
+        className,
         problem.kind === 'uncertain'
           ? 'border-brand/60 bg-surface-dark'
           : 'border-destructive/60 bg-destructive/10',

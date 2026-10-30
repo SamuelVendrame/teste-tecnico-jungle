@@ -1,5 +1,5 @@
 import type { QueryClient } from '@tanstack/react-query'
-import { Outlet, createRootRouteWithContext } from '@tanstack/react-router'
+import { Outlet, createRootRouteWithContext, useRouterState } from '@tanstack/react-router'
 
 import { LiveRegion } from '@/components/common/LiveRegion'
 import { Footer } from '@/components/layout/Footer'
@@ -25,6 +25,8 @@ const TOAST_OPTIONS = {
   actionButtonStyle: { background: 'var(--kurio-primary)', color: 'var(--kurio-ink)' },
 }
 
+const AUTH_ROUTE = /^\/(login|register)(\/|$)/
+
 export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootLayout,
   notFoundComponent: RouteNotFound,
@@ -37,6 +39,9 @@ export const Route = createRootRouteWithContext<RouterContext>()({
  */
 function RootLayout() {
   const tabBarVisible = useTabBarVisible()
+  const pathname = useRouterState({ select: (state) => state.location.pathname })
+  // Login e cadastro ocupam a tela inteira no mobile (Figma): sem footer nem newsletter.
+  const authRoute = AUTH_ROUTE.test(pathname)
   // Socket.IO (eventos nft.updated / order.updated) vive no ciclo de vida do shell.
   useRealtime()
   return (
@@ -47,7 +52,7 @@ function RootLayout() {
         <main id={MAIN_CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">
           <Outlet />
         </main>
-        <Footer />
+        <Footer className={cn(authRoute && 'hidden md:block')} />
       </div>
       <MobileTabBar />
       <SessionLifecycle />

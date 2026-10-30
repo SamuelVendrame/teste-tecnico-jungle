@@ -1,13 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import {
-  CircleXIcon,
-  ExternalLinkIcon,
-  HourglassIcon,
-  MailCheckIcon,
-  WifiOffIcon,
-  XIcon,
-} from 'lucide-react'
+import { CircleXIcon, ExternalLinkIcon, HourglassIcon, WifiOffIcon, XIcon } from 'lucide-react'
 import { useEffect, useRef, type ReactNode } from 'react'
 
 import { isApiClientError } from '@/api/client'
@@ -22,7 +15,13 @@ import { formatEth } from '@/lib/money'
 import { cn } from '@/lib/utils'
 import { dismissNotice, useRealtimeNotices, useRealtimeStatus } from '@/realtime/use-realtime'
 
-import { OrderLines, OrderMeta, OrderTotals, TxHash } from './components/OrderParts'
+import {
+  ThankYouEnvelope,
+  OrderLines,
+  OrderMeta,
+  OrderTotals,
+  TxHash,
+} from './components/OrderParts'
 import { EXPLORER_LABELS, formatOrderDate } from './format'
 import { orderDetailOptions, useSettleOrder } from './queries'
 
@@ -140,7 +139,7 @@ function ConfirmedCard({ order }: { order: Order }) {
     <Card className="border-b-[10px] border-brand">
       <CloseLink />
       <header className="flex flex-col items-center gap-4 px-6 pt-6 pb-5 text-center" role="status">
-        <MailCheckIcon aria-hidden className="size-[72px] stroke-[1.4] text-text-accent" />
+        <ThankYouEnvelope className="h-[80px] w-[68px] text-text-accent" />
         <div>
           <h1 id="order-status-title" className="text-lg font-bold text-text-primary">
             Pedido confirmado

@@ -127,8 +127,8 @@ export function RegisterForm({ returnTo }: { returnTo?: string }) {
       <div className="pt-3 md:pt-1">
         <SubmitButton
           pending={registerUser.isPending}
-          idleLabel="Criar conta"
-          pendingLabel="Criando conta..."
+          idleLabel="Criar perfil"
+          pendingLabel="Criando perfil..."
         />
       </div>
     </form>

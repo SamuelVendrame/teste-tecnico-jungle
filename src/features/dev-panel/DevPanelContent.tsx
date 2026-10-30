@@ -19,6 +19,7 @@ import {
 import { FILL_CREDENTIALS_EVENT } from '@/features/auth/fill-credentials-event'
 import { sessionStore, useSession } from '@/features/session/session-store'
 import { queryKeys } from '@/lib/query-keys'
+import { cn } from '@/lib/utils'
 import {
   SCENARIO_PRESETS,
   getScenario,
@@ -47,6 +48,18 @@ async function mockControl(path: string, body?: unknown) {
     body: body ? JSON.stringify(body) : undefined,
   })
   if (!res.ok) throw new Error(`/__mock${path} respondeu ${res.status}`)
+}
+
+/**
+ * Posição no mobile sem cobrir ações: acima da Tab Bar (126px) ou da barra de compra do
+ * detalhe; no checkout (botão fixo no rodapé) e nas telas cheias de login/cadastro, no topo,
+ * longe do formulário. Em >= md fica sempre no canto inferior esquerdo.
+ */
+function triggerPosition(pathname: string): string {
+  if (pathname.startsWith('/nft/')) return 'bottom-[188px] left-4'
+  if (pathname.startsWith('/checkout')) return 'top-3 right-4'
+  if (/^\/(login|register)/.test(pathname)) return 'top-4 left-4'
+  return 'bottom-[138px] left-4'
 }
 
 export default function DevPanelContent() {
@@ -125,13 +138,16 @@ export default function DevPanelContent() {
       <SheetTrigger asChild>
         <Button
           type="button"
-          size="sm"
           variant="outline"
-          aria-label="Cenários"
-          className="fixed bottom-20 left-4 z-40 rounded-full border-border-soft bg-surface-card text-text-accent shadow-lg md:bottom-4"
+          aria-label="Cenários de demonstração"
+          title="Cenários de demonstração"
+          className={cn(
+            'fixed z-30 size-10 rounded-full border-border-soft bg-surface-card/90 p-0 text-text-accent shadow-lg backdrop-blur-sm',
+            triggerPosition(pathname),
+            'md:top-auto md:right-auto md:bottom-4 md:left-4',
+          )}
         >
-          <FlaskConicalIcon />
-          <span className="hidden sm:inline">Cenários</span>
+          <FlaskConicalIcon aria-hidden className="size-[18px]" />
         </Button>
       </SheetTrigger>
       <SheetContent

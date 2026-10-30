@@ -91,7 +91,7 @@ export function CouponForm({ appliedCode, quoteError, className }: CouponFormPro
                 setCode(e.target.value)
                 if (error) setError(null)
               }}
-              placeholder="Digite o código promocional..."
+              placeholder="Código promocional"
               autoComplete="off"
               autoCapitalize="characters"
               aria-invalid={shownError ? true : undefined}

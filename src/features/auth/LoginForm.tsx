@@ -79,7 +79,7 @@ export function LoginForm({ returnTo }: { returnTo?: string }) {
                 onClick={() => toast.info('Recuperação de senha em breve.')}
                 className="rounded-xs text-xs text-text-accent underline-offset-4 hover:underline"
               >
-                Esqueci minha senha
+                Esqueceu a senha?
               </button>
             </TooltipTrigger>
             <TooltipContent>Em breve</TooltipContent>

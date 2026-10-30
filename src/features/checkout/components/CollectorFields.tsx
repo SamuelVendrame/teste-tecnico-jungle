@@ -79,6 +79,8 @@ interface CollectorFieldsProps {
   network: NetworkId | null
   onNetworkChange: (network: NetworkId) => void
   networkDisabled?: boolean
+  /** Nome de usuário da sessão: só leitura (o contrato do pedido não o envia). */
+  username?: string
   className?: string
 }
 
@@ -88,9 +90,11 @@ export function CollectorFields({
   network,
   onNetworkChange,
   networkDisabled = false,
+  username,
   className,
 }: CollectorFieldsProps) {
   const networkId = useId()
+  const usernameId = useId()
   const {
     register,
     formState: { errors },
@@ -112,6 +116,20 @@ export function CollectorFields({
           error={errors.name?.message}
           {...register('name')}
         />
+        {username !== undefined && (
+          <FieldShell id={usernameId} label="Nome de usuário">
+            <Input
+              id={usernameId}
+              value={username}
+              readOnly
+              aria-describedby={`${usernameId}-hint`}
+              className={cn(checkoutInputClass, 'text-text-secondary')}
+            />
+            <p id={`${usernameId}-hint`} className="sr-only">
+              Vem da sua conta; altere no perfil.
+            </p>
+          </FieldShell>
+        )}
         <TextField
           label="E-mail"
           type="email"

@@ -133,9 +133,17 @@ export function queryCatalog(q: CatalogQuery, opts: { empty: boolean }): Catalog
   }
 }
 
-export function relatedNfts(nft: Nft, limit = 3): Nft[] {
-  const sameCollection = allNfts().filter((n) => n.id !== nft.id && n.collection === nft.collection)
-  return sameCollection.slice(0, limit)
+/**
+ * Relacionados: primeiro a mesma coleção; como cada coleção tem 5 NFTs (4 além deste),
+ * completa com a mesma rede para preencher a fileira de 5 cards do Figma.
+ */
+export function relatedNfts(nft: Nft, limit = 5): Nft[] {
+  const others = allNfts().filter((n) => n.id !== nft.id)
+  const sameCollection = others.filter((n) => n.collection === nft.collection)
+  const sameNetwork = others.filter(
+    (n) => n.collection !== nft.collection && n.network === nft.network,
+  )
+  return [...sameCollection, ...sameNetwork].slice(0, limit)
 }
 
 export function featured(opts: { empty: boolean }): { hero: Nft[]; spotlight: Nft | null } {

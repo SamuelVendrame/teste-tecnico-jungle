@@ -74,7 +74,7 @@ export function DesktopHero({ slides, loading }: HeroProps) {
           </p>
           <h1
             id="hero-title"
-            className="mt-2 text-[28px] leading-[46px] font-bold tracking-[0.02em] text-text-primary uppercase lg:text-[43px] lg:leading-[70px]"
+            className="mt-2 text-2xl leading-10 font-bold tracking-[0.02em] text-text-primary uppercase lg:text-[43px] lg:leading-[70px]"
           >
             Seja dono do futuro
             <br /> da arte digital

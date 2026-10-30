@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 
-import { NftCard, NftCardSkeleton } from '@/components/common/NftCard'
+import { NftRail } from '@/components/common/NftRail'
 import { Button } from '@/components/ui/button'
 
 import { relatedNftsOptions } from '../queries'
@@ -34,19 +34,7 @@ export function RelatedNfts({ slug }: { slug: string }) {
           </Button>
         </div>
       ) : (
-        <ul className="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-5 lg:gap-x-6">
-          {isLoading
-            ? Array.from({ length: 5 }, (_, i) => (
-                <li key={i}>
-                  <NftCardSkeleton />
-                </li>
-              ))
-            : items!.map((nft) => (
-                <li key={nft.id}>
-                  <NftCard nft={nft} sizes="(max-width: 767px) 45vw, 220px" />
-                </li>
-              ))}
-        </ul>
+        <NftRail items={items} loading={isLoading} label="Mais desta coleção" className="mt-8" />
       )}
     </section>
   )

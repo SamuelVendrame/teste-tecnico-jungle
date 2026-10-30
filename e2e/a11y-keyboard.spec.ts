@@ -195,7 +195,7 @@ test.describe('Teclado e foco', () => {
   test('cadastro vazio descreve cada campo inválido com sua mensagem de erro', async ({ page }) => {
     await resetMocks(page, 'default', '/register')
 
-    await page.getByRole('button', { name: 'Criar conta' }).click()
+    await page.getByRole('button', { name: 'Criar perfil' }).click()
 
     for (const label of ['Nome completo', 'E-mail', 'Senha', 'Confirmar senha']) {
       const field = page.getByLabel(label, { exact: true })

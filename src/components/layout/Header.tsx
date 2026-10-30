@@ -21,10 +21,24 @@ import { Container } from './Container'
 import { HeaderSearch } from './HeaderSearch'
 
 const navItem =
-  'relative flex h-full items-center px-1 text-sm font-medium lg:text-[15px] text-text-primary transition-colors hover:text-text-accent'
+  'relative flex h-full items-center px-1 text-sm font-normal lg:text-[15px] text-text-primary transition-colors hover:text-text-accent'
+
+const navActive =
+  'text-text-accent after:absolute after:inset-x-0 after:-bottom-px after:h-[3px] after:rounded-full after:bg-brand'
+
+type NavSection = 'inicio' | 'mercado' | null
+
+/** Item ativo do menu como no Figma: auth fica em Início; o fluxo de compra, em Mercado. */
+function activeSection(pathname: string): NavSection {
+  if (pathname === '/' || /^\/(login|register)(\/|$)/.test(pathname)) return 'inicio'
+  if (/^\/(nft|cart|checkout|orders)(\/|$)/.test(pathname)) return 'mercado'
+  return null
+}
 
 /** Header desktop/tablet (>= 768px). No mobile a navegação fica na Tab Bar. */
 export function Header() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname })
+  const active = activeSection(pathname)
   return (
     <header className="hidden md:block">
       <Container className="pt-6">
@@ -45,18 +59,23 @@ export function Header() {
               <li className="h-full">
                 <Link
                   to="/"
-                  activeOptions={{ exact: true, includeSearch: false }}
-                  className={cn(navItem, 'data-[status=active]:text-text-accent')}
-                  activeProps={{
-                    className:
-                      'after:absolute after:inset-x-0 after:-bottom-px after:h-[3px] after:rounded-full after:bg-brand',
-                    'aria-current': 'page',
-                  }}
+                  className={cn(navItem, active === 'inicio' && navActive)}
+                  aria-current={active === 'inicio' ? 'page' : undefined}
                 >
                   Início
                 </Link>
               </li>
-              {['Mercado', 'Criadores', 'Aprenda'].map((label) => (
+              <li className="h-full">
+                <Link
+                  to="/"
+                  hash="catalogo"
+                  className={cn(navItem, active === 'mercado' && navActive)}
+                  aria-current={active === 'mercado' ? 'page' : undefined}
+                >
+                  Mercado
+                </Link>
+              </li>
+              {['Criadores', 'Aprenda'].map((label) => (
                 <li key={label} className="h-full">
                   <ComingSoonLink className={cn(navItem, 'hover:text-text-primary/80')}>
                     {label}

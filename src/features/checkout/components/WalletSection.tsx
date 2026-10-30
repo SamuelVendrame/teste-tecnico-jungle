@@ -46,7 +46,7 @@ export function WalletSection({
 }: WalletSectionProps) {
   return (
     <section aria-labelledby="wallet-title" className={className}>
-      <h2 id="wallet-title" className="text-base font-bold text-text-primary md:text-center">
+      <h2 id="wallet-title" className="text-base font-bold text-text-primary">
         Carteira e rede
       </h2>
 
@@ -83,7 +83,7 @@ export function WalletSection({
             value={selectedId ?? ''}
             onValueChange={onSelect}
             disabled={disabled}
-            className="mt-4 gap-3"
+            className="mt-4 gap-3 md:grid-cols-2"
           >
             {wallets.map((wallet) => (
               <WalletOption key={wallet.id} wallet={wallet} selected={wallet.id === selectedId} />

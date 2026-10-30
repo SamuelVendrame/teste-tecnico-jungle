@@ -62,7 +62,9 @@ export function ReviewSection({
                 className="size-[62px] shrink-0 rounded-[8px] object-cover md:size-[70px] md:rounded-[4px]"
               />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[15px] font-bold text-text-primary">{line.name}</p>
+                <p className="line-clamp-2 text-[15px] leading-5 font-bold break-words text-text-primary">
+                  {line.name}
+                </p>
                 <p className="truncate text-[13px] text-text-secondary">
                   Edição: {line.editionName}
                 </p>
