@@ -2,9 +2,16 @@
  * Catálogo público: listagem, destaques, detalhe e relacionados.
  * A ordem importa: `/nfts/featured` precisa vir antes de `/nfts/:slug`.
  */
-import { catalogQuery, type CatalogPage, type FeaturedResponse, type Nft } from '@/api/contracts'
+import {
+  catalogQuery,
+  type CatalogPage,
+  type FeaturedResponse,
+  type Nft,
+  type NftReviewsResponse,
+} from '@/api/contracts'
 
 import { featured, queryCatalog, relatedNfts, requireNft } from '../domain/nfts'
+import { nftReviews } from '../domain/reviews'
 import { getScenario } from '../scenarios'
 import { json, param, route, validate } from './http'
 
@@ -50,4 +57,8 @@ export const catalogHandlers = [
     const items = getScenario().emptyCatalog ? [] : relatedNfts(nft)
     return json<{ items: Nft[] }>({ items })
   }),
+
+  route('get', '/nfts/:slug/reviews', ({ params }) =>
+    json<NftReviewsResponse>(nftReviews(requireNft(param(params, 'slug')))),
+  ),
 ]

@@ -77,7 +77,7 @@ Definida em `src/app/query-client.ts`:
 ## Limitações conhecidas e decisões de UX
 
 - O socket simulado vive na aba: eventos gerados numa aba não chegam às outras (elas se atualizam pelo REST). Só WebSocket, sem long-polling, namespaces, rooms ou acks (ver README-socket).
-- Avaliações com estrelas do Figma não existem no contrato; o detalhe usa "likes" e a aba "Avaliações" virou "Atributos".
+- Avaliações de colecionadores são só leitura: o contrato expõe o resumo em `nft.rating` e a lista em `GET /nfts/:slug/reviews`, carregada ao abrir a aba (6 por vez). Não há escrita de avaliação porque o Figma não desenha esse fluxo.
 - Links fora do escopo (Mercado, Criadores, Aprenda, Central de ajuda, redes sociais, "Ler mais" do blog) ficam desabilitados com tooltip "Em breve"; a newsletter valida o e-mail e avisa que nada foi cadastrado. Nenhuma ação fora do escopo aparenta sucesso.
 - Favoritos e Pedidos não têm frame no Figma; vivem como seções da página de perfil.
 - A conexão de carteira passa por `POST /wallets/:id/connect` no mock (aprovação após a latência do cenário; recusa = 409 `WALLET_REFUSED`) e é exigida pela UI para confirmar o pedido. O estado "conectada" vive só no cliente (não é persistido) e o `POST /orders` não o revalida; desconectar é local.

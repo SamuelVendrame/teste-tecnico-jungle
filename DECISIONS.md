@@ -29,7 +29,7 @@ Registro cronológico. Cada item traz o motivo da escolha.
 ## Produto
 
 - **Favoritos e Pedidos são seções de `/profile`** (`#favoritos`, `#pedidos`), não páginas próprias. Motivo: sem frame no Figma e sem tempo; o enunciado só exige que favoritos persistam e pedidos sejam consultáveis.
-- **Avaliações com estrelas viraram "Atributos"** no detalhe. O contrato não tem rating; inventar dados fictícios de avaliação parecia pior do que trocar a aba.
+- **Avaliações de colecionadores como no Figma** (estrelas ao lado do preço, chip "4.8 (19)" no mobile e aba "Avaliações de colecionadores (N)"). A primeira versão tinha trocado a aba por "Atributos" por falta de rating no contrato; voltei atrás: o contrato ganhou `nft.rating` e `GET /nfts/:slug/reviews` (fixtures determinísticas, só leitura, carregadas ao abrir a aba, 6 por vez). Os atributos continuam na linha "Atributos:" do cabeçalho, como no layout.
 - **Rede da cotação no carrinho = rede do primeiro item**; no checkout o usuário escolhe explicitamente.
 - **Cotação é single-use** e tem `fingerprint`; o pedido envia o fingerprint revisado e a API recusa com `QUOTE_STALE` se algo mudou.
 - **Idempotency-Key por tentativa de checkout**, guardada em sessionStorage e reutilizada em timeout/clique repetido; só gira após resposta definitiva.

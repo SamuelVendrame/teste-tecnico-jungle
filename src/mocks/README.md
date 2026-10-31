@@ -12,17 +12,17 @@ Socket.IO simulado está em `socket.ts` (documentado em `README-socket.md`). Ele
 
 ## Organização
 
-| Arquivo          | Responsabilidade                                                                        |
-| ---------------- | --------------------------------------------------------------------------------------- |
-| `db.ts`          | Tipos e estado do banco, `commit()` (persistência), `resetDb()`, relógio `now()`        |
-| `persistence.ts` | Acesso seguro ao `localStorage` (no-op fora do navegador), versão do schema             |
-| `events.ts`      | Barramento `mockEvents` (`subscribe`/`emit`) consumido pelo socket simulado             |
-| `scenarios.ts`   | Cenários, latência com PRNG de semente fixa, flags de disparo único, falhas injetadas   |
-| `fixtures/`      | Seed determinístico: 45 NFTs, 2 usuários, carteiras, favoritos, cupons, taxas, 1 pedido |
-| `domain/`        | Regras de negócio: sessão, catálogo, carrinho, cupom, cotação, pedidos                  |
-| `handlers/`      | Rotas MSW por recurso; `http.ts` aplica o cenário e converte erros                      |
-| `control.ts`     | Endpoints `/__mock/*` para o painel de dev e o Playwright                               |
-| `__smoke__.ts`   | Smoke test fora do navegador (`npx tsx src/mocks/__smoke__.ts`)                         |
+| Arquivo          | Responsabilidade                                                                                                                        |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `db.ts`          | Tipos e estado do banco, `commit()` (persistência), `resetDb()`, relógio `now()`                                                        |
+| `persistence.ts` | Acesso seguro ao `localStorage` (no-op fora do navegador), versão do schema                                                             |
+| `events.ts`      | Barramento `mockEvents` (`subscribe`/`emit`) consumido pelo socket simulado                                                             |
+| `scenarios.ts`   | Cenários, latência com PRNG de semente fixa, flags de disparo único, falhas injetadas                                                   |
+| `fixtures/`      | Seed determinístico: 45 NFTs, avaliações por NFT (só leitura, fora do banco), 2 usuários, carteiras, favoritos, cupons, taxas, 1 pedido |
+| `domain/`        | Regras de negócio: sessão, catálogo, carrinho, cupom, cotação, pedidos                                                                  |
+| `handlers/`      | Rotas MSW por recurso; `http.ts` aplica o cenário e converte erros                                                                      |
+| `control.ts`     | Endpoints `/__mock/*` para o painel de dev e o Playwright                                                                               |
+| `__smoke__.ts`   | Smoke test fora do navegador (`npx tsx src/mocks/__smoke__.ts`)                                                                         |
 
 ## Modelo de dados
 
@@ -67,6 +67,7 @@ responde `401 UNAUTHORIZED`. Qualquer outra rota `/api/*` responde `404 NOT_FOUN
 | `GET /nfts/featured`                               | —                   | 200 `{ hero, spotlight }`                                                                 | —                                                                                       |
 | `GET /nfts/:slug`                                  | —                   | 200 `Nft` (aceita slug ou id)                                                             | 404 NOT_FOUND                                                                           |
 | `GET /nfts/:slug/related`                          | —                   | 200 `{ items }`: 3 NFTs da mesma coleção                                                  | 404                                                                                     |
+| `GET /nfts/:slug/reviews`                          | —                   | 200 `{ rating, items }`: avaliações de colecionadores (só leitura; `nft.rating` resume)   | 404                                                                                     |
 | `GET /favorites`                                   | Bearer              | 200 `Favorites`                                                                           | 401                                                                                     |
 | `PUT /favorites/:nftId`                            | Bearer              | 200 `Favorites` (idempotente)                                                             | 401, 404                                                                                |
 | `DELETE /favorites/:nftId`                         | Bearer              | 200 `Favorites` (idempotente)                                                             | 401                                                                                     |

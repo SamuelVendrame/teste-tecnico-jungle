@@ -226,6 +226,26 @@ export const nftCreator = z.object({
   avatarUrl: z.string(),
 })
 
+/** Média das avaliações (1 casa decimal) e quantidade. `average` é 0 sem avaliações. */
+export const nftRating = z.object({
+  average: z.number().min(0).max(5),
+  count: z.number().int().min(0),
+})
+export type NftRating = z.infer<typeof nftRating>
+
+export const nftReview = z.object({
+  id: z.string(),
+  author: z.object({ name: z.string(), handle: z.string() }),
+  rating: z.number().int().min(1).max(5),
+  title: z.string(),
+  body: z.string(),
+  createdAt: isoDate,
+})
+export type NftReview = z.infer<typeof nftReview>
+
+export const nftReviewsResponse = z.object({ rating: nftRating, items: z.array(nftReview) })
+export type NftReviewsResponse = z.infer<typeof nftReviewsResponse>
+
 export const nft = z.object({
   id: z.string(),
   slug: z.string(),
@@ -244,6 +264,8 @@ export const nft = z.object({
   editions: z.array(nftEdition).min(1),
   attributes: z.array(z.object({ trait: z.string(), value: z.string() })),
   likes: z.number().int(),
+  /** Resumo das avaliações de colecionadores (lista em GET /nfts/:slug/reviews). */
+  rating: nftRating,
   featured: z.boolean(),
   createdAt: isoDate,
   version: z.number().int(),

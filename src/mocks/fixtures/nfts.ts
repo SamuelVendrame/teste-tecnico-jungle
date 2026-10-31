@@ -20,6 +20,7 @@ import {
 import { compareEth } from '@/lib/money'
 
 import { createPrng, type Prng } from '../utils'
+import { ratingOf, seedReviews } from './reviews'
 
 /** Relógio do seed. A aba "Novos" considera os 30 dias anteriores a esta data. */
 export const SEED_CLOCK = '2026-10-15T12:00:00.000Z'
@@ -230,6 +231,7 @@ export function createNfts(): { nfts: Nft[]; spotlightId: string } {
         { trait: 'Edições', value: String(editionCount) },
       ],
       likes: prng.int(3, 480),
+      rating: ratingOf(seedReviews()[id] ?? []),
       featured: FEATURED_INDEXES.has(index),
       createdAt: createdAt.toISOString(),
       version: 1,

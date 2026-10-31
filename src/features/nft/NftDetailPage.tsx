@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router'
-import { ChevronLeftIcon, HeartIcon, MailIcon, ShoppingCartIcon } from 'lucide-react'
+import { ChevronLeftIcon, MailIcon, ShoppingCartIcon, StarIcon } from 'lucide-react'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 
@@ -9,6 +9,7 @@ import { announce } from '@/components/common/announce'
 import { EthAmount } from '@/components/common/EthAmount'
 import { FavoriteButton } from '@/components/common/FavoriteButton'
 import { formatHandle, nftAlt } from '@/components/common/nft-display'
+import { formatRating, ratingLabel, StarRating } from '@/components/common/StarRating'
 import { QuantityStepper } from '@/components/common/QuantityStepper'
 import { Container } from '@/components/layout/Container'
 import { LinkedinIcon, TwitterIcon } from '@/components/layout/SocialIcons'
@@ -175,9 +176,14 @@ function NftSummary({ nft, purchase }: { nft: Nft; purchase: NftPurchase }) {
           {nft.name}
         </h1>
         <span className="inline-flex h-[27px] shrink-0 items-center gap-1 rounded-full border border-brand px-2.5 text-sm font-bold text-text-primary md:hidden">
-          <HeartIcon aria-hidden className="size-3.5 fill-brand text-brand" />
-          {nft.likes}
-          <span className="sr-only">curtidas</span>
+          <StarIcon aria-hidden className="size-3.5 fill-brand text-brand" strokeWidth={1.5} />
+          <span className="sr-only">
+            Avaliação: {ratingLabel(nft.rating.average, nft.rating.count)}
+          </span>
+          <span aria-hidden>
+            {nft.rating.count === 0 ? '—' : formatRating(nft.rating.average)}{' '}
+            <span className="font-normal text-text-secondary">({nft.rating.count})</span>
+          </span>
         </span>
       </div>
 
@@ -198,8 +204,15 @@ function NftSummary({ nft, purchase }: { nft: Nft; purchase: NftPurchase }) {
           )}
         </p>
         <p className="flex items-center gap-1.5 text-sm text-text-primary">
-          <HeartIcon aria-hidden className="size-4 fill-brand text-brand" />
-          {nft.likes} colecionadores curtiram
+          <StarRating value={nft.rating.average} />
+          <span className="sr-only">
+            Avaliação: {ratingLabel(nft.rating.average, nft.rating.count)}
+          </span>
+          <span aria-hidden>
+            {nft.rating.count === 0
+              ? 'Ainda sem avaliações'
+              : `${nft.rating.count} ${nft.rating.count === 1 ? 'avaliação' : 'avaliações'} de colecionadores`}
+          </span>
         </p>
       </div>
 

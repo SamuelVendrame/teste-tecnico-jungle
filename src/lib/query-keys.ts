@@ -14,6 +14,7 @@ export const queryKeys = {
     featured: () => ['nfts', 'featured'] as const,
     detail: (slug: string) => ['nfts', 'detail', slug] as const,
     related: (slug: string) => ['nfts', 'related', slug] as const,
+    reviews: (slug: string) => ['nfts', 'reviews', slug] as const,
   },
   session: {
     current: () => ['session'] as const,

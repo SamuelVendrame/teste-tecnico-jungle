@@ -20,6 +20,7 @@ import {
   favorites,
   featuredResponse,
   nft,
+  nftReviewsResponse,
   order,
   orderList,
   quote,
@@ -78,6 +79,11 @@ export const nftApi = {
     request(
       { method: 'GET', url: `/nfts/${encodeURIComponent(slug)}/related`, signal: o.signal },
       z.object({ items: z.array(nft) }).parse,
+    ),
+  reviews: (slug: string, o: Opts = {}) =>
+    request(
+      { method: 'GET', url: `/nfts/${encodeURIComponent(slug)}/reviews`, signal: o.signal },
+      nftReviewsResponse.parse,
     ),
 }
 

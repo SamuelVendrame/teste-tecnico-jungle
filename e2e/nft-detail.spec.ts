@@ -6,6 +6,7 @@ import { expect, resetMocks, test } from './fixtures'
  * - ivory-baron-312: edição "Limitada" esgotada ao lado de edições disponíveis.
  * - cosmic-bloom-505: todas as edições esgotadas.
  * - golden-signal-160: 2 disponíveis (menos que o máximo por pedido, 5).
+ * - emerald-ape-042 tem 19 avaliações (média 4.8); neon-vessel-552 não tem nenhuma.
  */
 test.describe('Detalhe do NFT', () => {
   test('acesso direto renderiza nome, preço e edições', async ({ page }) => {
@@ -115,5 +116,74 @@ test.describe('Detalhe do NFT', () => {
     await increase.click()
     await expect(quantity).toHaveText('2')
     await expect(increase).toBeDisabled()
+  })
+})
+
+test.describe('Avaliações de colecionadores', () => {
+  test('a aba carrega as avaliações sob demanda e mostra mais em lotes', async ({ page }) => {
+    const reviewRequests: string[] = []
+    page.on('request', (request) => {
+      if (request.url().includes('/api/nfts/') && request.url().endsWith('/reviews'))
+        reviewRequests.push(request.url())
+    })
+    await resetMocks(page, 'default', '/nft/emerald-ape-042')
+
+    // Resumo (contagem) vem no próprio NFT; a lista só é pedida ao abrir a aba.
+    await expect(page.getByRole('tab', { name: /\(19\)$/ })).toBeVisible()
+    expect(reviewRequests).toHaveLength(0)
+
+    // Rótulo curto no mobile ("Avaliações (19)"), completo no desktop.
+    await page.getByRole('tab', { name: /^Avaliações( de colecionadores)? \(19\)$/ }).click()
+
+    const reviews = page.getByRole('article', { name: /^Avaliação de / })
+    await expect(reviews).toHaveCount(6)
+    expect(reviewRequests).toHaveLength(1)
+    await expect(page.getByText('4.8', { exact: true })).toBeVisible()
+
+    await page.getByRole('button', { name: 'Mostrar mais avaliações (13 restantes)' }).click()
+    await expect(reviews).toHaveCount(12)
+    await page.getByRole('button', { name: 'Mostrar mais avaliações (7 restantes)' }).click()
+    await expect(reviews).toHaveCount(18)
+    await page.getByRole('button', { name: 'Mostrar mais avaliações (1 restante)' }).click()
+    await expect(reviews).toHaveCount(19)
+    await expect(page.getByRole('button', { name: /Mostrar mais avaliações/ })).toHaveCount(0)
+  })
+
+  test('NFT sem avaliações mostra o estado vazio', async ({ page }) => {
+    await resetMocks(page, 'default', '/nft/neon-vessel-552')
+
+    await page.getByRole('tab', { name: /^Avaliações( de colecionadores)? \(0\)$/ }).click()
+
+    await expect(
+      page.getByText('Este NFT ainda não tem avaliações de colecionadores.'),
+    ).toBeVisible()
+    await expect(page.getByRole('article', { name: /^Avaliação de / })).toHaveCount(0)
+  })
+
+  test('falha ao carregar as avaliações oferece nova tentativa', async ({ page }) => {
+    await resetMocks(page, 'default', '/nft/emerald-ape-042')
+    await page.evaluate(() =>
+      fetch('/__mock/fail-next', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        // 503 repetido: esgota os retries de falha transitória da query (ver src/app/query-client.ts).
+        body: JSON.stringify({
+          method: 'GET',
+          path: '/api/nfts/emerald-ape-042/reviews',
+          status: 503,
+          count: 3,
+        }),
+      }),
+    )
+
+    await page.getByRole('tab', { name: /^Avaliações( de colecionadores)? \(19\)$/ }).click()
+
+    const alert = page
+      .getByRole('alert')
+      .filter({ hasText: 'Não foi possível carregar as avaliações.' })
+    await expect(alert).toBeVisible({ timeout: 20_000 })
+    await alert.getByRole('button', { name: 'Tentar novamente' }).click()
+
+    await expect(page.getByRole('article', { name: /^Avaliação de / })).toHaveCount(6)
   })
 })

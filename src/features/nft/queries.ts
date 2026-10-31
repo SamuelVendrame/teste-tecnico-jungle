@@ -15,3 +15,10 @@ export const relatedNftsOptions = (slug: string) =>
     queryFn: ({ signal }) => nftApi.related(slug, { signal }),
     staleTime: 5 * 60_000,
   })
+
+export const nftReviewsOptions = (slug: string) =>
+  queryOptions({
+    queryKey: queryKeys.nfts.reviews(slug),
+    queryFn: ({ signal }) => nftApi.reviews(slug, { signal }),
+    staleTime: 5 * 60_000,
+  })
