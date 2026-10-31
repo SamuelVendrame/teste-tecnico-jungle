@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  checks:
+    name: typecheck, lint, E2E e regressão visual
+    runs-on: ubuntu-latest
+    # Mesma imagem usada em `npm run test:visual` (versão do lockfile): as baselines
+    # de e2e/__screenshots__ foram geradas nela, então a suíte visual roda aqui também.
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+    env:
+      CI: 'true'
+      PW_VISUAL: '1'
+      HOME: /root
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Dependências
+        run: npm ci --no-audit --no-fund
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Playwright (build, preview, desktop + mobile, regressão visual)
+        run: npx playwright test
+
+      - name: Relatório Playwright
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 14
+
+      - name: Traces e vídeos das falhas
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results
+          retention-days: 14

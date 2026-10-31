@@ -74,6 +74,8 @@ Endpoints de controle (sem latência): `GET /__mock/state`, `POST /__mock/reset`
 | `npm run test:visual:update` | Regera as baselines de regressão visual no mesmo container |
 | `npm run lighthouse` | Auditoria Lighthouse (3 medições, mediana) em `lighthouse/reports` |
 
+A integração contínua ([.github/workflows/ci.yml](./.github/workflows/ci.yml)) roda typecheck, lint e a suíte Playwright completa, incluindo a regressão visual, na imagem oficial do Playwright a cada push na `main`; o relatório HTML fica como artefato da execução.
+
 ## Reproduzindo fluxos de falha
 
 Todos a partir de `npm run dev` (ou da URL pública), logado como `ana@kurio.dev`:
