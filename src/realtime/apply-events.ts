@@ -42,7 +42,10 @@ export interface ApplyContext {
 
 export type ApplyOutcome = 'applied' | 'ignored' | 'invalid'
 
-const log = (...args: unknown[]) => console.debug('[realtime]', ...args)
+/** Diagnóstico dos eventos só em desenvolvimento; o build de demonstração fica silencioso. */
+const log = (...args: unknown[]) => {
+  if (import.meta.env.DEV) console.debug('[realtime]', ...args)
+}
 
 // ---------------------------------------------------------------------------
 // Utilitários

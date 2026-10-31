@@ -220,17 +220,21 @@ export function CheckoutPage() {
   }
 
   const blocking = live ? hasBlockingIssues(live) : false
-  const disabledReason = !selectedWallet
-    ? 'Selecione uma carteira cadastrada.'
-    : !live || quote.isFetching || secondsLeft === 0
-      ? 'Atualizando a cotação…'
-      : quoteChanged
-        ? 'A cotação mudou: revise os valores.'
-        : blocking
-          ? 'Ajuste os itens indisponíveis no carrinho.'
-          : connection !== 'connected'
-            ? 'Conecte a carteira para confirmar.'
-            : null
+  // Um pedido ainda pendente segura os itens no carrinho até confirmar ou falhar:
+  // confirmar de novo agora criaria uma segunda compra do mesmo conteúdo.
+  const disabledReason = pending
+    ? 'Aguarde a confirmação do pedido pendente.'
+    : !selectedWallet
+      ? 'Selecione uma carteira cadastrada.'
+      : !live || quote.isFetching || secondsLeft === 0
+        ? 'Atualizando a cotação…'
+        : quoteChanged
+          ? 'A cotação mudou: revise os valores.'
+          : blocking
+            ? 'Ajuste os itens indisponíveis no carrinho.'
+            : connection !== 'connected'
+              ? 'Conecte a carteira para confirmar.'
+              : null
   // Uma tentativa em aberto é reenviada como está (mesma chave e payload).
   const canSubmit = createOrder.hasOpenAttempt || disabledReason === null
 

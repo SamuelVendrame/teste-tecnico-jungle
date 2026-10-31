@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from '@tanstack/react-router'
 
 import { cartApi } from '@/api/endpoints'
 import { CheckoutPage } from '@/features/checkout/CheckoutPage'
+import { checkoutAttempt } from '@/features/checkout/checkout-storage'
 import { requireAuth } from '@/features/session/require-auth'
 import { sessionStore } from '@/features/session/session-store'
 import { queryKeys } from '@/lib/query-keys'
@@ -23,7 +24,12 @@ export const Route = createFileRoute('/checkout')({
       })
       // Falha ao ler o carrinho: a página mostra o erro com 'Tentar novamente'.
       .catch(() => null)
-    if (cart && cart.items.length === 0) throw redirect({ to: '/cart', replace: true })
+    // Carrinho vazio com tentativa em aberto: o servidor pode ter confirmado o pedido
+    // (e consumido o carrinho) sem a resposta chegar. A página oferece recuperá-lo
+    // pela mesma chave em vez de cair no carrinho vazio.
+    if (cart && cart.items.length === 0 && !checkoutAttempt.read(userId)) {
+      throw redirect({ to: '/cart', replace: true })
+    }
   },
   component: CheckoutPage,
 })

@@ -41,13 +41,19 @@ function currentScenarioName(): ScenarioName {
   ) as ScenarioName
 }
 
-async function mockControl(path: string, body?: unknown) {
+async function mockControl<T = unknown>(path: string, body?: unknown): Promise<T> {
+  // O Bearer identifica a sessão nas rotas de controle que agem sobre ela (/session/expire).
+  const { token } = sessionStore.getState()
+  const headers: Record<string, string> = {}
+  if (body) headers['Content-Type'] = 'application/json'
+  if (token) headers.Authorization = `Bearer ${token}`
   const res = await fetch(`/__mock${path}`, {
     method: 'POST',
-    headers: body ? { 'Content-Type': 'application/json' } : undefined,
+    headers,
     body: body ? JSON.stringify(body) : undefined,
   })
   if (!res.ok) throw new Error(`/__mock${path} respondeu ${res.status}`)
+  return (await res.json()) as T
 }
 
 /**
@@ -107,7 +113,11 @@ export default function DevPanelContent() {
   async function expireSession() {
     setBusy('expire')
     try {
-      await mockControl('/session/expire')
+      const { expired } = await mockControl<{ expired: boolean }>('/session/expire')
+      if (!expired) {
+        toast.error('Não foi possível expirar a sessão.')
+        return
+      }
       toast.success('Sessão expirada no servidor.')
       // Revalida já, para a expiração aparecer sem esperar a próxima requisição.
       await queryClient.invalidateQueries({ queryKey: queryKeys.session.current() })

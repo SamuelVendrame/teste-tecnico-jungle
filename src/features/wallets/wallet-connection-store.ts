@@ -39,6 +39,13 @@ export function setWalletConnection(walletId: string, state: WalletConnectionSta
   emit()
 }
 
+/** Logout / troca de usuário: nenhuma conexão da conta anterior sobrevive. */
+export function resetWalletConnections() {
+  if (states.size === 0) return
+  states.clear()
+  emit()
+}
+
 export function useWalletConnection(walletId: string | null | undefined): WalletConnectionState {
   return useSyncExternalStore(
     subscribe,

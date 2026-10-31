@@ -11,10 +11,11 @@ import { useMutation, useQueryClient, type Query, type QueryClient } from '@tans
 import { useRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
 
-import type { LoginInput, RegisterInput, Session } from '@/api/contracts'
+import type { Cart, LoginInput, RegisterInput, Session } from '@/api/contracts'
 import { authApi, cartApi } from '@/api/endpoints'
 import { resolveReturnTo } from '@/features/auth/return-to'
 import { clearPrivateStorage } from '@/features/checkout/checkout-storage'
+import { resetWalletConnections } from '@/features/wallets/wallet-connection-store'
 import { PUBLIC_QUERY_ROOTS, queryKeys } from '@/lib/query-keys'
 
 import { sessionStore } from './session-store'
@@ -40,12 +41,26 @@ function readGuestCartId(): string | null {
   }
 }
 
+/**
+ * A mescla descarta edições esgotadas e limita quantidades ao estoque/limite por
+ * pedido (ver `mergeGuestCart` no mock). Algum item do visitante sumiu ou encolheu?
+ */
+function lostInMerge(guest: Cart, merged: Cart): boolean {
+  return guest.items.some((g) => {
+    const kept = merged.items.find((m) => m.id === g.id)
+    return !kept || kept.quantity < g.quantity
+  })
+}
+
 /** Conclui um login/cadastro: troca de usuário sem rastros, grava a sessão e mescla o carrinho. */
 async function establishSession(queryClient: QueryClient, session: Session) {
+  // Lido antes da limpeza: serve para avisar o que a mescla não conseguiu manter.
+  const guestCart = queryClient.getQueryData<Cart>(queryKeys.cart('guest'))
   // Nada do usuário anterior (ou do visitante) pode sobreviver à nova sessão. O
   // checkout persistido do PRÓPRIO usuário fica (sessão expirada no meio da compra).
   clearPrivateQueries(queryClient)
   clearPrivateStorage(session.user.id)
+  resetWalletConnections()
   sessionStore.setSession(session)
   sessionStore.setReturnTo(null)
 
@@ -56,6 +71,11 @@ async function establishSession(queryClient: QueryClient, session: Session) {
     sessionStore.resetGuestCartId()
     queryClient.setQueryData(queryKeys.cart(session.user.id), merged)
     queryClient.removeQueries({ queryKey: queryKeys.cart('guest') })
+    if (guestCart && lostInMerge(guestCart, merged)) {
+      toast.warning(
+        'Alguns itens do carrinho de visitante não estão mais disponíveis na quantidade escolhida e foram ajustados.',
+      )
+    }
   } catch {
     // Mantém o id do visitante para uma nova tentativa no próximo login.
     toast.warning('Não foi possível sincronizar o carrinho de visitante.')
@@ -111,6 +131,7 @@ export function useLogout() {
       sessionStore.clear()
       clearPrivateQueries(queryClient)
       clearPrivateStorage()
+      resetWalletConnections()
       router.history.replace('/')
       toast.success('Você saiu da sua conta')
     },

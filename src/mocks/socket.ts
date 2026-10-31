@@ -15,24 +15,12 @@ import { toSocketIo } from '@mswjs/socket.io-binding'
 import { http, HttpResponse, ws, type WebSocketHandlerConnection } from 'msw'
 
 import { SOCKET_EVENTS, sessionBindPayload } from '@/api/contracts'
-import { getDb, now } from '@/mocks/db'
+import { getUserIdByToken } from '@/mocks/db'
 import { mockEvents, type DomainEvent } from '@/mocks/events'
 import { resolveSocketEndpoint } from '@/realtime/socket-url'
 
 /** Menor que o pingInterval (25s) anunciado pelo handshake falso do binding. */
 const PING_EVERY_MS = 20_000
-
-/**
- * Resolve o dono da conexão a partir do token, lendo as sessões do banco simulado.
- * Token ausente, desconhecido ou expirado -> null (visitante).
- * TODO: trocar por `getUserIdByToken` de '@/mocks/db' quando o banco exportar.
- */
-function getUserIdByToken(token: string | null): string | null {
-  if (!token) return null
-  const session = getDb().sessions[token]
-  if (!session || Date.parse(session.expiresAt) <= now().getTime()) return null
-  return session.userId
-}
 
 interface MockSocketConnection {
   raw: WebSocketHandlerConnection
