@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-30T17:57:18.091Z",
+  "generatedAt": "2026-10-31T22:25:30.752Z",
   "baseUrl": "http://localhost:4173",
   "runs": 3,
   "tools": {
@@ -23,7 +23,7 @@
         "performance": [
           78,
           78,
-          78
+          81
         ],
         "accessibility": [
           100,
@@ -42,9 +42,9 @@
         ]
       },
       "metricsMedian": {
-        "lcpMs": 5721,
-        "cls": 0.017,
-        "tbtMs": 105
+        "lcpMs": 5100,
+        "cls": 0.032,
+        "tbtMs": 185
       }
     },
     {
@@ -59,7 +59,7 @@
       },
       "runs": {
         "performance": [
-          98,
+          99,
           99,
           99
         ],
@@ -80,7 +80,7 @@
         ]
       },
       "metricsMedian": {
-        "lcpMs": 977,
+        "lcpMs": 921,
         "cls": 0.001,
         "tbtMs": 0
       }
@@ -90,16 +90,16 @@
       "url": "http://localhost:4173/nft/emerald-ape-042",
       "profile": "mobile",
       "median": {
-        "performance": 81,
+        "performance": 85,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "runs": {
         "performance": [
-          81,
-          81,
-          81
+          85,
+          85,
+          85
         ],
         "accessibility": [
           100,
@@ -118,9 +118,9 @@
         ]
       },
       "metricsMedian": {
-        "lcpMs": 5069,
+        "lcpMs": 4333,
         "cls": 0.015,
-        "tbtMs": 50
+        "tbtMs": 43
       }
     },
     {
@@ -128,16 +128,16 @@
       "url": "http://localhost:4173/nft/emerald-ape-042",
       "profile": "desktop",
       "median": {
-        "performance": 98,
+        "performance": 99,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "runs": {
         "performance": [
-          98,
-          98,
-          98
+          99,
+          99,
+          99
         ],
         "accessibility": [
           100,
@@ -156,7 +156,7 @@
         ]
       },
       "metricsMedian": {
-        "lcpMs": 1101,
+        "lcpMs": 916,
         "cls": 0,
         "tbtMs": 0
       }

@@ -119,6 +119,9 @@ export default function DevPanelContent() {
         return
       }
       toast.success('Sessão expirada no servidor.')
+      // O painel fecha antes da revalidação: o diálogo de sessão expirada (ou o login,
+      // numa rota privada) precisa ficar acessível, não atrás do Sheet.
+      setOpen(false)
       // Revalida já, para a expiração aparecer sem esperar a próxima requisição.
       await queryClient.invalidateQueries({ queryKey: queryKeys.session.current() })
     } catch {
