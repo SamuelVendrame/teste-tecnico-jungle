@@ -10,7 +10,7 @@ npm run lighthouse        # sobe o preview na 4173 se não houver um, roda 3x po
 - Configuração versionada em [`config.json`](./config.json) (throttling simulado padrão do Lighthouse: RTT 150 ms, 1,6 Mbps, CPU 4x no mobile; desktop com RTT 40 ms, 10 Mbps, CPU 1x).
 - Páginas: `/` e `/nft/emerald-ape-042`. Perfis: mobile (412×823, DPR 1,75) e desktop (1440×900).
 - Cenário dos mocks: `default` (latência simulada de 150 a 450 ms por requisição, como na demo).
-- Saída: `reports/<página>-<perfil>-run<n>.html|json` (fora do git por tamanho), `reports/summary.json` e `reports/SUMMARY.md` (versionados) com a mediana por categoria, LCP, CLS e TBT.
+- Saída (tudo versionado): `reports/<página>-<perfil>-run<n>.html|json`, `reports/summary.json` e `reports/SUMMARY.md` com a mediana por categoria, LCP, CLS e TBT.
 - Ferramentas e ambiente ficam gravados em `summary.json` (versão do Lighthouse, Node, plataforma).
 
 ## Resultado (mediana de 3 medições)
@@ -43,7 +43,13 @@ O que já foi feito para reduzir o LCP (ver commit `perf:` no histórico):
 - Os três primeiros cards do catálogo carregam com `fetchpriority="high"` e sem `loading="lazy"`.
 - Imagens em WebP (800 e 400 px, ~50 KB e ~15 KB) em vez dos PNGs de 2 MB do Figma; fonte self-hosted só no subset latin; rotas com code splitting.
 - O skeleton do detalhe passou a reservar a altura das abas e dos relacionados: CLS do footer no desktop caiu de 0,18 para 0.
+- O `pendingComponent` das rotas carrega no mesmo chunk do `component` (`codeSplittingOptions` no `vite.config.ts`). Antes, o skeleton exportado do arquivo da página puxava a página inteira para o bundle inicial; o JS inicial caiu de 146 KB para 120 KB gzip e o `react-hook-form` saiu dele.
+- As bibliotecas do shell (React, TanStack, Axios, Sonner, Lucide, Zod) ficam num chunk `shell`: o HTML deixou de pré-carregar ~20 arquivos de poucos KB, que em HTTP/1.1 (6 conexões no modelo do Lighthouse) entravam em fila.
+- O chunk dos mocks e o da rota aberta são pré-carregados pelo HTML (plugin `preloadCriticalChunks` no `vite.config.ts`), em vez de só serem descobertos depois que o JS inicial executa.
+- O painel de cenários de demonstração só carrega depois do `load`, sem disputar a rede com a primeira tela.
 
-Próximos passos possíveis, não feitos por prazo: separar `decimal.js` da formatação de preço (só o carrinho precisa de aritmética), reduzir primitivas Radix no shell inicial e pré-renderizar a primeira página do catálogo em HTML estático no build (o que exigiria SSG e mudaria a arquitetura de SPA).
+Efeito medido na mesma máquina (Linux, 3 medições por versão, alternadas): LCP mobile cerca de 0,4 s menor no início e no detalhe, +4 a 5 pontos de Performance. Não é suficiente para 90: o LCP continua preso à cadeia JS → Service Worker do MSW → API simulada descrita acima.
+
+Próximos passos possíveis, não feitos: reduzir primitivas Radix no shell inicial e pré-renderizar a primeira página do catálogo em HTML estático no build (o que exigiria SSG e mudaria a arquitetura de SPA). Separar o `decimal.js` da formatação não encurta o caminho do LCP, porque os mocks, carregados no início, também dependem dele.
 
 Nenhuma simplificação foi feita só para pontuar: a auditoria carrega as imagens, fontes e todas as funcionalidades da entrega, com os mocks e o socket ativos.
