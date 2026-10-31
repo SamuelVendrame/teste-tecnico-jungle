@@ -69,8 +69,9 @@ Endpoints de controle (sem latência): `GET /__mock/state`, `POST /__mock/reset`
 | `npm run preview` | Serve o build em http://localhost:4173 |
 | `npm run typecheck` | `tsc -b` |
 | `npm run lint` | oxlint |
-| `npm run test:e2e` | Playwright (faz o build e sobe o preview sozinho) |
-| `npm run test:e2e:update` | Atualiza baselines de regressão visual |
+| `npm run test:e2e` | Playwright (faz o build e sobe o preview sozinho); a regressão visual é pulada fora do container |
+| `npm run test:visual` | Regressão visual no container oficial do Playwright (requer Docker) |
+| `npm run test:visual:update` | Regera as baselines de regressão visual no mesmo container |
 | `npm run lighthouse` | Auditoria Lighthouse (3 medições, mediana) em `lighthouse/reports` |
 
 ## Reproduzindo fluxos de falha

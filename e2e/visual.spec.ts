@@ -11,12 +11,21 @@ import { reviewSection, settledQuoteTotal } from './support/checkout'
  * rede ociosa, fontes e imagens carregadas. Só a contagem regressiva da cotação no
  * checkout ("Cotação válida por") é mascarada: o resto não depende de data/hora.
  *
- * Baselines: `npm run test:e2e:update -- visual.spec.ts`.
+ * Baselines: geradas e comparadas só no container de referência
+ * (`npm run test:visual` / `npm run test:visual:update`, ver scripts/visual-docker.mjs).
+ * Fora dele a renderização de fonte do SO muda os pixels, então a suíte é pulada.
  */
+test.skip(
+  process.env.PW_VISUAL !== '1',
+  'Regressão visual roda no container de referência: npm run test:visual',
+)
+
 async function settle(page: Page) {
   await page.waitForLoadState('networkidle')
   await page.evaluate(() => document.fonts.ready)
   await waitForImages(page)
+  // O botão do painel de cenários monta depois do `load` (ver DevPanel.tsx): sempre no frame.
+  await page.getByRole('button', { name: 'Cenários de demonstração' }).waitFor()
   // Rola ao topo: o scroll do teste anterior ou do clique nunca entra no frame.
   await page.evaluate(() => window.scrollTo(0, 0))
 }

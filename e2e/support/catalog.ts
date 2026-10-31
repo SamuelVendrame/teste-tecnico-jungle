@@ -68,6 +68,8 @@ export async function sortBy(page: Page, isMobile: boolean, label: string) {
   const scope = isMobile ? await openFilters(page, true) : page
   await scope.getByRole('combobox', { name: 'Ordenar por:' }).click()
   await page.getByRole('option', { name: label }).click()
+  // O Escape do Sheet não pode chegar enquanto a lista do Select ainda fecha (seria dela).
+  await expect(page.getByRole('listbox')).toBeHidden()
   await closeFilters(page, isMobile)
 }
 

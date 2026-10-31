@@ -12,7 +12,8 @@
     "format": "prettier --write .",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:update": "playwright test --update-snapshots=all",
+    "test:visual": "node scripts/visual-docker.mjs",
+    "test:visual:update": "node scripts/visual-docker.mjs --update",
     "lighthouse": "node scripts/lighthouse.mjs"
   },
   "dependencies": {
