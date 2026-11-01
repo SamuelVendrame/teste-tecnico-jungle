@@ -5,6 +5,7 @@ import { LiveRegion } from '@/components/common/LiveRegion'
 import { Footer } from '@/components/layout/Footer'
 import { Header } from '@/components/layout/Header'
 import { MobileTabBar } from '@/components/layout/MobileTabBar'
+import { MocksUnavailableBanner } from '@/components/layout/MocksUnavailableBanner'
 import { RouteError, RouteNotFound } from '@/components/layout/RouteStates'
 import { MAIN_CONTENT_ID, SkipLink } from '@/components/layout/SkipLink'
 import { TAB_BAR_SPACER, useTabBarVisible } from '@/components/layout/tab-bar'
@@ -48,6 +49,7 @@ function RootLayout() {
     <TooltipProvider delayDuration={200}>
       <SkipLink />
       <div className={cn('flex min-h-dvh flex-col', tabBarVisible && TAB_BAR_SPACER)}>
+        <MocksUnavailableBanner />
         <Header />
         <main id={MAIN_CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">
           <Outlet />

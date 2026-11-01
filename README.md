@@ -18,18 +18,18 @@ npm run dev            # http://localhost:5173
 
 ### Variáveis de ambiente
 
-| Variável | Padrão | Descrição |
-| --- | --- | --- |
-| `VITE_ENABLE_MSW` | `true` | Camada de mocks (REST + Socket.IO). Ligada por padrão, mesmo sem `.env`; só `false` desliga. O `.env.production` versionado fixa `true` no build de demonstração. |
-| `VITE_API_URL` | `/api` | Base da API. |
-| `VITE_SOCKET_URL` | `ws://localhost/socket` | URL do socket (interceptada pelo MSW). |
+| Variável          | Padrão                  | Descrição                                                                                                                                                         |
+| ----------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `VITE_ENABLE_MSW` | `true`                  | Camada de mocks (REST + Socket.IO). Ligada por padrão, mesmo sem `.env`; só `false` desliga. O `.env.production` versionado fixa `true` no build de demonstração. |
+| `VITE_API_URL`    | `/api`                  | Base da API.                                                                                                                                                      |
+| `VITE_SOCKET_URL` | `ws://localhost/socket` | URL do socket (interceptada pelo MSW).                                                                                                                            |
 
 ## Credenciais fictícias
 
-| Usuário | E-mail | Senha |
-| --- | --- | --- |
-| Ana Ribeiro | `ana@kurio.dev` | `Senha123` |
-| Bruno Lima | `bruno@kurio.dev` | `Senha123` |
+| Usuário     | E-mail            | Senha      |
+| ----------- | ----------------- | ---------- |
+| Ana Ribeiro | `ana@kurio.dev`   | `Senha123` |
+| Bruno Lima  | `bruno@kurio.dev` | `Senha123` |
 
 Cupons: `KURIO10` (10%), `FIXED05` (0,05 ETH, subtotal mínimo 0,5), `GENESIS` (expirado).
 
@@ -43,36 +43,36 @@ Três formas de escolher um cenário:
 - **Painel "Cenários"**: botão flutuante no canto inferior esquerdo (presente também no build de demonstração). Lista os cenários, reseta os dados, preenche credenciais e expira a sessão.
 - **Endpoint de controle**: `POST /__mock/scenario { "name": "flaky" }`, usado pelos testes.
 
-| Cenário | Efeito |
-| --- | --- |
-| `default` | Latência 150 a 450 ms; pagamento confirmado em 2,5 s |
-| `slow` | Latência 1,5 a 3 s (skeletons) |
-| `flaky` | A cada 3 requisições a `/api/nfts*` e `/api/cart*`, uma responde 503 |
-| `offline` | Toda rota `/api` falha com erro de rede |
-| `empty-catalog` | Catálogo, destaques e relacionados vazios |
-| `session-expired` | A próxima requisição autenticada recebe 401 e a sessão expira |
-| `order-declined` | Pagamento recusado em 2,5 s; estoque e carrinho preservados |
-| `order-timeout` | `POST /orders` cria o pedido mas só responde após 12 s; o reenvio com a mesma `Idempotency-Key` recupera o mesmo pedido |
-| `price-change` | 10 s após a primeira cotação o preço sobe 15% (`nft.updated`) e o pedido recebe `QUOTE_STALE` |
-| `coupon-expired` | Todo cupom responde `COUPON_EXPIRED` |
-| `out-of-order` | Latência 100 a 2500 ms com respostas fora de ordem no catálogo |
-| `sold-out` | 3 s após a primeira cotação a edição esgota e o pedido é barrado |
+| Cenário           | Efeito                                                                                                                  |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `default`         | Latência 150 a 450 ms; pagamento confirmado em 2,5 s                                                                    |
+| `slow`            | Latência 1,5 a 3 s (skeletons)                                                                                          |
+| `flaky`           | A cada 3 requisições a `/api/nfts*` e `/api/cart*`, uma responde 503                                                    |
+| `offline`         | Toda rota `/api` falha com erro de rede                                                                                 |
+| `empty-catalog`   | Catálogo, destaques e relacionados vazios                                                                               |
+| `session-expired` | A próxima requisição autenticada recebe 401 e a sessão expira                                                           |
+| `order-declined`  | Pagamento recusado em 2,5 s; estoque e carrinho preservados                                                             |
+| `order-timeout`   | `POST /orders` cria o pedido mas só responde após 12 s; o reenvio com a mesma `Idempotency-Key` recupera o mesmo pedido |
+| `price-change`    | 10 s após a primeira cotação o preço sobe 15% (`nft.updated`) e o pedido recebe `QUOTE_STALE`                           |
+| `coupon-expired`  | Todo cupom responde `COUPON_EXPIRED`                                                                                    |
+| `out-of-order`    | Latência 100 a 2500 ms com respostas fora de ordem no catálogo                                                          |
+| `sold-out`        | 3 s após a primeira cotação a edição esgota e o pedido é barrado                                                        |
 
 Endpoints de controle (sem latência): `GET /__mock/state`, `POST /__mock/reset`, `POST /__mock/scenario`, `POST /__mock/nfts/:id/update`, `POST /__mock/orders/:id/resolve`, `POST /__mock/session/expire`, `POST /__mock/clock/advance`, `POST /__mock/fail-next`, `POST /__mock/socket/emit`, `POST /__mock/socket/disconnect`. Detalhes em [src/mocks/README.md](./src/mocks/README.md) e [src/mocks/README-socket.md](./src/mocks/README-socket.md).
 
 ## Comandos
 
-| Comando | O que faz |
-| --- | --- |
-| `npm run dev` | Desenvolvimento com mocks |
-| `npm run build` | Typecheck + build de produção |
-| `npm run preview` | Serve o build em http://localhost:4173 |
-| `npm run typecheck` | `tsc -b` |
-| `npm run lint` | oxlint |
-| `npm run test:e2e` | Playwright (faz o build e sobe o preview sozinho); a regressão visual é pulada fora do container |
-| `npm run test:visual` | Regressão visual no container oficial do Playwright (requer Docker) |
-| `npm run test:visual:update` | Regera as baselines de regressão visual no mesmo container |
-| `npm run lighthouse` | Auditoria Lighthouse (3 medições, mediana) em `lighthouse/reports` |
+| Comando                      | O que faz                                                                                        |
+| ---------------------------- | ------------------------------------------------------------------------------------------------ |
+| `npm run dev`                | Desenvolvimento com mocks                                                                        |
+| `npm run build`              | Typecheck + build de produção                                                                    |
+| `npm run preview`            | Serve o build em http://localhost:4173                                                           |
+| `npm run typecheck`          | `tsc -b`                                                                                         |
+| `npm run lint`               | oxlint                                                                                           |
+| `npm run test:e2e`           | Playwright (faz o build e sobe o preview sozinho); a regressão visual é pulada fora do container |
+| `npm run test:visual`        | Regressão visual no container oficial do Playwright (requer Docker)                              |
+| `npm run test:visual:update` | Regera as baselines de regressão visual no mesmo container                                       |
+| `npm run lighthouse`         | Auditoria Lighthouse (3 medições, mediana) em `lighthouse/reports`                               |
 
 A integração contínua ([.github/workflows/ci.yml](./.github/workflows/ci.yml)) roda typecheck, lint e a suíte Playwright completa, incluindo a regressão visual, na imagem oficial do Playwright a cada push na `main`; o relatório HTML fica como artefato da execução.
 
@@ -90,3 +90,7 @@ Todos a partir de `npm run dev` (ou da URL pública), logado como `ana@kurio.dev
 8. **Falha de favorito com rollback**: `fetch('/__mock/fail-next', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ method: 'PUT', path: '/api/favorites*', status: 503 }) })` e clique num coração.
 
 Os testes em `e2e/` automatizam cada um desses fluxos.
+
+## Se aparecer "A API simulada não está ativa nesta aba"
+
+A app confere na inicialização se o Service Worker do MSW está interceptando as chamadas (`GET /__mock/state` precisa voltar JSON). Quando não está, nada carrega, então ela mostra esse aviso em vez de erros genéricos. Causas conhecidas: "Bypass for network" marcado em DevTools → Application → Service Workers; janela anônima ou navegador com service workers bloqueados; aba que ficou sem controle do worker. Recarregar a página resolve na maioria dos casos (o próprio MSW recarrega sozinho após um reload forçado).

@@ -36,6 +36,7 @@ Registro cronológico. Cada item traz o motivo da escolha.
 - **Polling de 3s na página do pedido enquanto pendente**, além do socket. Rede de segurança para refresh e quedas.
 - **Login desktop como modal sobre o marketplace** (como no Figma) usando o header real do shell atrás; mobile em página inteira.
 - **Botão de carrinho extra no detalhe desktop**, espelhando a buy bar do mobile.
+- **A app confere se o MSW está interceptando a aba** (`GET /__mock/state` precisa voltar JSON logo após `worker.start()`). Se não estiver, mostra um aviso fixo com "Recarregar" e o Axios recusa as chamadas com a causa, em vez de deixá-las cair no servidor estático e virar "Algo deu errado" em cada tela. Motivo: um avaliador com "Bypass for network" nas DevTools ou numa janela que bloqueia service workers via a app toda quebrada sem explicação.
 - **Consumo do carrinho após confirmação é "no máximo uma vez"**: `kurio:pending-order` é apagado antes do `POST /cart/consume`. Um refresh nessa janela de ~400 ms deixa o item no carrinho (inofensivo) em vez de arriscar subtrair duas vezes.
 
 ## Correções após revisão

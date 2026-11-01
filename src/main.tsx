@@ -8,7 +8,7 @@ import { createRoot } from 'react-dom/client'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 
-import { MOCKS_ENABLED, markMocksReady } from '@/app/mocks-ready'
+import { MOCKS_ENABLED, markMocksFailed, markMocksReady } from '@/app/mocks-ready'
 import { queryClient } from '@/app/query-client'
 import { routeTree } from './routeTree.gen'
 
@@ -35,8 +35,13 @@ declare module '@tanstack/react-router' {
 if (MOCKS_ENABLED) {
   import('@/mocks/browser')
     .then(({ startMocks }) => startMocks())
-    .catch((error: unknown) => console.error('[mocks] falha ao iniciar o MSW', error))
-    .finally(markMocksReady)
+    .then(markMocksReady)
+    .catch((error: unknown) => {
+      // Worker não registrado ou não interceptando esta aba: o Axios passa a recusar as
+      // requisições com motivo e o shell mostra o aviso (MocksUnavailableBanner).
+      console.error('[mocks] a API simulada não está ativa nesta aba', error)
+      markMocksFailed(error instanceof Error ? error.message : String(error))
+    })
 }
 
 createRoot(document.getElementById('root')!).render(

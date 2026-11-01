@@ -61,6 +61,10 @@ export function applyApiErrorToForm<T extends FieldValues>(
     if (mapped > 0) return null
   }
 
+  if (error.meta?.mocks === 'unavailable') {
+    return { kind: 'unavailable', message: error.message, retryable: false }
+  }
+
   if (error.code === 'SERVICE_UNAVAILABLE' || error.status === 0 || error.isTransient) {
     return {
       kind: 'unavailable',

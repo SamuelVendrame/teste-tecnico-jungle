@@ -1,6 +1,6 @@
 import axios, { AxiosError, type AxiosRequestConfig } from 'axios'
 
-import { mocksReady } from '@/app/mocks-ready'
+import { getMocksStatus, mocksReady } from '@/app/mocks-ready'
 
 import { HEADERS, apiError, type ApiError, type ApiErrorCode } from './contracts'
 
@@ -40,6 +40,18 @@ export const api = axios.create({
 api.interceptors.request.use(async (config) => {
   // Com mocks ligados, nenhuma requisição sai antes de o Service Worker do MSW estar ativo.
   await mocksReady
+  const mocks = getMocksStatus()
+  if (mocks.state === 'failed') {
+    // Sem interceptação a chamada chegaria ao servidor estático (HTML 200) e viraria um
+    // erro genérico; melhor falhar aqui com a causa, que o shell também exibe.
+    throw new ApiClientError({
+      code: 'SERVICE_UNAVAILABLE',
+      message: 'A API simulada (MSW) não está ativa nesta aba. Recarregue a página.',
+      status: 0,
+      meta: { mocks: 'unavailable', reason: mocks.reason },
+      canceled: false,
+    })
+  }
   const token = tokenStore.getToken()
   if (token) config.headers.set(HEADERS.authorization, `Bearer ${token}`)
   const cartId = tokenStore.getGuestCartId()
