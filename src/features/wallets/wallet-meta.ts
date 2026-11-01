@@ -1,4 +1,11 @@
-import { walletInput, type NetworkId, type Wallet, type WalletInput } from '@/api/contracts'
+import {
+  ensSuffix,
+  walletInput,
+  type EnsSuffix,
+  type NetworkId,
+  type Wallet,
+  type WalletInput,
+} from '@/api/contracts'
 
 export type WalletKind = Wallet['kind']
 export type WalletProvider = Wallet['provider']
@@ -21,6 +28,7 @@ export const PROVIDER_LABELS: Record<WalletProvider, string> = {
 
 export const PROVIDERS: WalletProvider[] = ['metamask', 'walletconnect', 'coinbase']
 export const NETWORKS: NetworkId[] = ['ethereum', 'polygon', 'solana']
+export const ENS_SUFFIXES: EnsSuffix[] = ensSuffix.options
 
 /** Dica do formato esperado por rede. */
 export const ADDRESS_HINTS: Record<NetworkId, string> = {
@@ -61,5 +69,5 @@ export function truncateAddress(address: string): string {
   return `${address.slice(0, 6)}…${address.slice(-4)}`
 }
 
-/** Id do botão de ação (Cadastrar/Editar) do slot; recebe o foco ao fechar o diálogo. */
+/** Id do botão de ação (Adicionar/Editar) da seção. */
 export const walletActionId = (kind: WalletKind) => `wallet-action-${kind}`

@@ -9,9 +9,6 @@ import type { Locator, Page, Request } from '@playwright/test'
 
 import { expect, mockControl } from '../fixtures'
 
-/** CPF só com dígitos (o checkout valida 11 ou 14 dígitos). */
-export const CPF = '12345678909'
-
 export function reviewSection(page: Page): Locator {
   return page.getByRole('region', { name: 'Seus NFTs' })
 }
@@ -20,10 +17,15 @@ export function confirmButton(page: Page): Locator {
   return page.getByRole('button', { name: 'Confirmar compra' })
 }
 
-/** Preenche o "Perfil do colecionador" (nome e e-mail já vêm da conta). */
-export async function fillCollector(page: Page, document = CPF) {
-  await expect(page.getByLabel('Nome completo')).toHaveValue(/\S/)
-  await page.getByLabel('CPF ou CNPJ').fill(document)
+/**
+ * "Perfil do colecionador": os campos vêm preenchidos pela carteira principal da conta
+ * (Ana tem todos). Confere o preenchimento e deixa uma observação opcional.
+ */
+export async function fillCollector(page: Page) {
+  await expect(page.getByLabel('Nome de exibição')).toHaveValue(/\S/)
+  await expect(page.getByLabel('Código de indicação')).toHaveValue(/\S/)
+  await expect(page.getByLabel('Nome ENS')).toHaveValue(/\S/)
+  await page.getByLabel('Observação do colecionador').fill('Entrega para a galeria.')
 }
 
 /** Seleciona a carteira pelo apelido e conecta (POST /wallets/:id/connect no mock). */

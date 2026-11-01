@@ -33,7 +33,7 @@ Pontos de contrato que a UI depende:
 - **Erros** têm sempre o formato `{ error: { code, message, details?, meta? } }`. A UI decide por `code` (ex.: `QUOTE_STALE`, `COUPON_EXPIRED`), nunca por status HTTP. `details` carrega erros por campo para formulários.
 - **ETH é string decimal** em todo lugar (`"1.19"`). Cálculos passam por `src/lib/money.ts` (decimal.js). Quantidades são inteiras.
 - **Versões**: NFT, carrinho, pedido, favoritos e carteiras têm `version` inteiro crescente. É o que permite descartar eventos antigos.
-- **Pedidos** exigem o header `Idempotency-Key` e o `quoteFingerprint` da cotação revisada.
+- **Pedidos** exigem o header `Idempotency-Key` e o `quoteFingerprint` da cotação revisada. O `collector` do pedido é o perfil do colecionador do Figma (`collectorProfile`: nome de exibição, nome do perfil, ENS/carteira secundária, código de indicação, e-mail, nome ENS) mais o nome de usuário e uma observação; o mesmo perfil vive em cada `Wallet`, e o pagamento o pré-preenche pela carteira escolhida.
 - **Eventos** (`nft.updated`, `order.updated`) têm envelope `{ eventId, emittedAt, resource: { kind, id }, version, payload }`; `order.updated` traz `userId`.
 
 ## Política de sessão

@@ -26,8 +26,10 @@ const TOAST_OPTIONS = {
   actionButtonStyle: { background: 'var(--kurio-primary)', color: 'var(--kurio-ink)' },
 }
 
-/** Frames mobile sem rodapé no Figma (login, cadastro, carrinho, pagamento) e páginas da conta. */
-const NO_MOBILE_FOOTER = /^\/(login|register|cart|checkout|profile|wallets|orders)(\/|$)/
+/** Frames mobile sem rodapé no Figma (login, cadastro, carrinho, pagamento) e pedidos. */
+const NO_MOBILE_FOOTER = /^\/(login|register|cart|checkout|orders)(\/|$)/
+/** Perfil e carteiras não têm rodapé no Figma em nenhuma largura. */
+const NO_FOOTER = /^\/(profile|wallets)(\/|$)/
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootLayout,
@@ -54,7 +56,9 @@ function RootLayout() {
         <main id={MAIN_CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">
           <Outlet />
         </main>
-        <Footer className={cn(NO_MOBILE_FOOTER.test(pathname) && 'hidden md:block')} />
+        {!NO_FOOTER.test(pathname) && (
+          <Footer className={cn(NO_MOBILE_FOOTER.test(pathname) && 'hidden md:block')} />
+        )}
       </div>
       <MobileTabBar />
       <SessionLifecycle />

@@ -179,7 +179,14 @@ export function OrderMeta({ order, className }: { order: Order; className?: stri
       </div>
       <div>
         <dt className="text-text-secondary">Colecionador</dt>
-        <dd className="text-text-primary">{s.collector.name}</dd>
+        <dd className="text-text-primary">
+          {s.collector.displayName}
+          <span className="text-text-secondary">
+            {' '}
+            · {s.collector.ensName}
+            {s.collector.ensSuffix}
+          </span>
+        </dd>
       </div>
       <div>
         <dt className="text-text-secondary">E-mail</dt>

@@ -11,7 +11,7 @@ export const STORAGE_KEYS = {
 } as const
 
 /** Incremente ao mudar o shape do banco: dados antigos são descartados e o seed é recriado. */
-export const DB_SCHEMA_VERSION = 2 // 2: NFT ganhou `rating` (avaliações)
+export const DB_SCHEMA_VERSION = 3 // 2: NFT ganhou `rating`; 3: perfil do colecionador em carteiras e pedidos
 
 function storage(): Storage | null {
   try {

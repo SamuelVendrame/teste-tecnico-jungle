@@ -83,16 +83,39 @@ export function CheckoutPage() {
   const connection = useWalletConnection(selectedWallet?.id)
 
   // Passo 1: formulário (rascunho sobrevive a refresh e à expiração da sessão).
+  // O perfil vem da carteira principal (mesmos campos do cadastro de carteira) e da conta.
+  const profileSource = wallets?.find((w) => w.kind === 'primary') ?? wallets?.[0]
   const form = useForm<CollectorInfo>({
     resolver: zodResolver(collectorInfo),
     mode: 'onTouched',
     defaultValues: {
-      name: user?.name ?? '',
-      email: user?.email ?? '',
-      document: '',
+      displayName: profileSource?.displayName ?? user?.name ?? '',
+      username: user?.username ?? '',
+      profileName: profileSource?.profileName ?? '',
+      secondaryRef: profileSource?.secondaryRef ?? '',
+      referralCode: profileSource?.referralCode ?? '',
+      email: profileSource?.email ?? user?.email ?? '',
+      ensSuffix: profileSource?.ensSuffix ?? '.eth',
+      ensName: profileSource?.ensName ?? '',
+      note: '',
       ...checkoutForm.read(userId),
     },
   })
+  // As carteiras chegam depois do primeiro render: preenche o que ainda está vazio.
+  useEffect(() => {
+    if (!profileSource) return
+    const current = form.getValues()
+    const fill = (key: keyof CollectorInfo, value: string) => {
+      if (!current[key]) form.setValue(key, value)
+    }
+    fill('displayName', profileSource.displayName)
+    fill('profileName', profileSource.profileName)
+    fill('secondaryRef', profileSource.secondaryRef)
+    fill('referralCode', profileSource.referralCode)
+    fill('email', profileSource.email)
+    fill('ensName', profileSource.ensName)
+    if (!current.username && user?.username) form.setValue('username', user.username)
+  }, [form, profileSource, user?.username])
   useEffect(() => {
     const sub = form.watch((values) => checkoutForm.write(userId, values))
     return () => sub.unsubscribe()
@@ -297,7 +320,12 @@ export function CheckoutPage() {
             network={network}
             onNetworkChange={setNetworkChoice}
             networkDisabled={createOrder.pending}
-            username={user?.username}
+            wallet={selectedWallet}
+            wallets={wallets}
+            onSelectWallet={(id) => {
+              setWalletId(id)
+              setNetworkChoice(wallets?.find((w) => w.id === id)?.network ?? null)
+            }}
           />
 
           <WalletSection

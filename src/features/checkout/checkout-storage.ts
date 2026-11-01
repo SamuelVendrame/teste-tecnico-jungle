@@ -15,7 +15,12 @@
  */
 import { z } from 'zod'
 
-import { createOrderInput, type CollectorInfo, type CreateOrderInput } from '@/api/contracts'
+import {
+  createOrderInput,
+  ensSuffix,
+  type CollectorInfo,
+  type CreateOrderInput,
+} from '@/api/contracts'
 
 const ATTEMPT_KEY = 'kurio:checkout-attempt'
 const FORM_KEY = 'kurio:checkout-form'
@@ -35,7 +40,18 @@ export interface CheckoutAttempt {
 /** Rascunho do formulário: aceita valores ainda inválidos (o usuário estava digitando). */
 const draftSchema = z.object({
   userId: z.string(),
-  values: z.object({ name: z.string(), email: z.string(), document: z.string() }).partial(),
+  values: z
+    .object({
+      displayName: z.string(),
+      profileName: z.string(),
+      secondaryRef: z.string(),
+      referralCode: z.string(),
+      email: z.string(),
+      ensSuffix,
+      ensName: z.string(),
+      note: z.string(),
+    })
+    .partial(),
 })
 
 const pendingSchema = z.object({ userId: z.string(), orderId: z.string() })

@@ -171,21 +171,33 @@ export type ChangePasswordInput = z.infer<typeof changePasswordInput>
 export const walletKind = z.enum(['primary', 'secondary'])
 export const walletProvider = z.enum(['metamask', 'walletconnect', 'coinbase'])
 
-export const wallet = z.object({
-  id: z.string(),
-  userId: z.string(),
-  kind: walletKind,
-  label: z.string(),
-  address: z.string(),
-  network: networkId,
-  provider: walletProvider,
-  createdAt: isoDate,
-  updatedAt: isoDate,
-  version: z.number().int(),
-})
-export type Wallet = z.infer<typeof wallet>
+export const ensSuffix = z.enum(['.eth', '.sol'])
+export type EnsSuffix = z.infer<typeof ensSuffix>
 
-export const walletInput = z.object({
+/**
+ * Perfil do colecionador, como no formulário do Figma (Carteiras e Pagamento):
+ * nome de exibição, nome do perfil, ENS/carteira secundária, código de indicação,
+ * e-mail e nome ENS. Vive em cada carteira e vai no snapshot do pedido.
+ */
+export const collectorProfile = z.object({
+  displayName: z.string().trim().min(2, 'Informe o nome de exibição').max(60),
+  profileName: z.string().trim().min(2, 'Informe o nome do perfil').max(60),
+  /** "ENS ou carteira secundária (opcional)". */
+  secondaryRef: z.string().trim().max(80),
+  referralCode: z
+    .string()
+    .trim()
+    .regex(/^[A-Za-z0-9-]{3,16}$/, 'Use de 3 a 16 letras, números ou hífen'),
+  email: z.string().trim().email('E-mail inválido'),
+  ensSuffix,
+  ensName: z
+    .string()
+    .trim()
+    .regex(/^[a-z0-9-]{3,32}$/, 'Use letras minúsculas, números ou hífen (3 a 32)'),
+})
+export type CollectorProfile = z.infer<typeof collectorProfile>
+
+export const walletInput = collectorProfile.extend({
   kind: walletKind,
   label: z.string().trim().min(2, 'Dê um nome à carteira').max(40),
   address: z
@@ -196,6 +208,15 @@ export const walletInput = z.object({
   provider: walletProvider,
 })
 export type WalletInput = z.infer<typeof walletInput>
+
+export const wallet = walletInput.extend({
+  id: z.string(),
+  userId: z.string(),
+  createdAt: isoDate,
+  updatedAt: isoDate,
+  version: z.number().int(),
+})
+export type Wallet = z.infer<typeof wallet>
 
 /** POST /wallets/:id/connect. `simulateRefusal` faz o mock responder 409 WALLET_REFUSED. */
 export const walletConnectInput = z.object({ simulateRefusal: z.boolean().optional() })
@@ -446,13 +467,10 @@ export type QuoteInput = z.infer<typeof quoteInput>
 export const orderStatus = z.enum(['pending', 'confirmed', 'declined'])
 export type OrderStatus = z.infer<typeof orderStatus>
 
-export const collectorInfo = z.object({
-  name: z.string().trim().min(2, 'Informe o nome completo'),
-  email: z.string().trim().email('E-mail inválido'),
-  document: z
-    .string()
-    .trim()
-    .regex(/^\d{11}$|^\d{14}$/, 'Informe CPF (11 dígitos) ou CNPJ (14 dígitos)'),
+/** Dados do colecionador no pedido: o perfil do Figma + nome de usuário da conta + observação. */
+export const collectorInfo = collectorProfile.extend({
+  username: z.string().trim().min(1),
+  note: z.string().trim().max(500),
 })
 export type CollectorInfo = z.infer<typeof collectorInfo>
 

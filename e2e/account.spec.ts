@@ -145,76 +145,83 @@ test.describe('Perfil', () => {
 })
 
 test.describe('Carteiras', () => {
-  function slot(page: Page, kind: 'principal' | 'secundária'): Locator {
-    return page.getByRole('article', { name: `Carteira ${kind}` })
+  function section(page: Page, kind: 'principal' | 'secundária'): Locator {
+    return page.getByRole('region', { name: `Carteira ${kind}` })
   }
 
   test('editar o apelido da principal persiste; endereço inválido é recusado', async ({ page }) => {
     await resetMocks(page)
     await loginViaApi(page, 'ana')
     await page.goto('/wallets')
-    const primary = slot(page, 'principal')
-    await expect(primary.getByText('MetaMask principal')).toBeVisible()
-
-    await primary.getByRole('button', { name: 'Editar carteira principal' }).click()
-    let dialog = page.getByRole('dialog', { name: 'Editar carteira principal' })
-    await expect(dialog).toBeVisible()
+    const primary = section(page, 'principal')
+    await expect(primary.getByText('MetaMask principal', { exact: true })).toBeVisible()
+    const form = primary.getByRole('form', { name: 'Editar carteira principal' })
+    await expect(form.getByLabel('Nome de exibição')).toHaveValue('Ana Ribeiro')
+    await expect(form.getByLabel('Nome ENS')).toHaveValue('anaribeiro')
 
     // Endereço inválido: erro no campo e nada é salvo.
-    const address = dialog.getByLabel('Endereço da carteira')
+    const address = form.getByLabel('Endereço da carteira')
     await address.fill('0x123')
-    await dialog.getByRole('button', { name: 'Salvar carteira' }).click()
+    await form.getByRole('button', { name: 'Salvar carteira' }).click()
     await expectFieldError(address, 'Endereço inválido')
-    await expect(dialog).toBeVisible()
-    await dialog.getByRole('button', { name: 'Cancelar' }).click()
-    await expect(dialog).toBeHidden()
+    await expect(page.getByText('Carteira principal atualizada')).toHaveCount(0)
 
-    await primary.getByRole('button', { name: 'Editar carteira principal' }).click()
-    dialog = page.getByRole('dialog', { name: 'Editar carteira principal' })
-    await expect(dialog.getByLabel('Endereço da carteira')).toHaveValue(
-      '0x8f3C2a91B7e4D05c6A1f9E2b3D4c5A6b7C8d9E0F',
-    )
-    await dialog.getByLabel('Apelido da carteira').fill('Cofre MetaMask')
-    await dialog.getByRole('button', { name: 'Salvar carteira' }).click()
-    await expect(dialog).toBeHidden()
+    await address.fill('0x8f3C2a91B7e4D05c6A1f9E2b3D4c5A6b7C8d9E0F')
+    await form.getByLabel('Apelido da carteira').fill('Cofre MetaMask')
+    await form.getByRole('button', { name: 'Salvar carteira' }).click()
     await expect(page.getByText('Carteira principal atualizada')).toBeVisible()
-    await expect(primary.getByText('Cofre MetaMask')).toBeVisible()
+    await expect(primary.getByText('Cofre MetaMask', { exact: true })).toBeVisible()
 
     await page.reload()
-    await expect(slot(page, 'principal').getByText('Cofre MetaMask')).toBeVisible()
+    await expect(
+      section(page, 'principal').getByText('Cofre MetaMask', { exact: true }),
+    ).toBeVisible()
+    await expect(
+      section(page, 'principal').getByRole('form').getByLabel('Apelido da carteira'),
+    ).toHaveValue('Cofre MetaMask')
   })
 
-  test('Bruno cadastra a carteira secundária', async ({ page }) => {
+  test('Bruno cadastra a secundária igual à principal e ajusta rede e endereço', async ({
+    page,
+  }) => {
     await resetMocks(page)
     await loginViaApi(page, 'bruno')
     await page.goto('/wallets')
-    const secondary = slot(page, 'secundária')
+    const secondary = section(page, 'secundária')
     await expect(
-      secondary.getByText('Você ainda não cadastrou uma carteira secundária.'),
+      secondary.getByText('Você ainda não adicionou uma carteira secundária.'),
     ).toBeVisible()
+    await expect(secondary.getByRole('form')).toHaveCount(0)
 
-    await secondary.getByRole('button', { name: 'Cadastrar carteira secundária' }).click()
-    const dialog = page.getByRole('dialog', { name: 'Cadastrar carteira secundária' })
-    await expect(dialog).toBeVisible()
+    // "Igual à carteira principal" abre o formulário já com o perfil da principal.
+    await secondary.getByRole('switch', { name: 'Igual à carteira principal' }).check()
+    const form = secondary.getByRole('form', { name: 'Cadastrar carteira secundária' })
+    await expect(form).toBeVisible()
+    await expect(form.getByLabel('Nome de exibição')).toHaveValue('Bruno Lima')
+    await expect(form.getByLabel('Código de indicação')).toHaveValue('KURIO-BRUNO')
 
-    await dialog.getByLabel('Apelido da carteira').fill('Polygon do Bruno')
-    await dialog.getByRole('radio', { name: 'WalletConnect' }).click()
-    await dialog.getByRole('combobox', { name: 'Rede' }).click()
+    await form.getByLabel('Apelido da carteira').fill('Polygon do Bruno')
+    await form.getByRole('combobox', { name: 'Tipo de carteira' }).click()
+    await page.getByRole('option', { name: 'WalletConnect' }).click()
+    await form.getByRole('combobox', { name: 'Rede' }).click()
     await page.getByRole('option', { name: 'Polygon' }).click()
-    await dialog
-      .getByLabel('Endereço da carteira')
-      .fill('0x00112233445566778899aAbBcCdDeEfF00112233')
-    await dialog.getByRole('button', { name: 'Salvar carteira' }).click()
+    await form.getByLabel('Endereço da carteira').fill('0x00112233445566778899aAbBcCdDeEfF00112233')
+    await form.getByRole('button', { name: 'Salvar carteira' }).click()
 
-    await expect(dialog).toBeHidden()
     await expect(page.getByText('Carteira secundária cadastrada')).toBeVisible()
-    await expect(secondary.getByText('Polygon do Bruno')).toBeVisible()
+    await expect(secondary.getByText('Polygon do Bruno', { exact: true })).toBeVisible()
 
     await page.reload()
-    const reloaded = slot(page, 'secundária')
-    await expect(reloaded.getByText('Polygon do Bruno')).toBeVisible()
-    await expect(reloaded.getByText('WalletConnect')).toBeVisible()
-    await expect(reloaded.getByText('Polygon', { exact: true })).toBeVisible()
+    const reloaded = section(page, 'secundária')
+    await expect(reloaded.getByText('Polygon do Bruno', { exact: true })).toBeVisible()
+    const reloadedForm = reloaded.getByRole('form', { name: 'Editar carteira secundária' })
+    await expect(reloadedForm.getByRole('combobox', { name: 'Tipo de carteira' })).toHaveText(
+      'WalletConnect',
+    )
+    await expect(reloadedForm.getByRole('combobox', { name: 'Rede' })).toHaveText('Polygon')
+    await expect(reloadedForm.getByLabel('Endereço da carteira')).toHaveValue(
+      '0x00112233445566778899aAbBcCdDeEfF00112233',
+    )
   })
 
   test('API recusa uma segunda carteira principal (WALLET_LIMIT)', async ({ page }) => {
@@ -232,6 +239,13 @@ test.describe('Carteiras', () => {
           address: '0x00112233445566778899aabbccddeeff00112233',
           network: 'ethereum',
           provider: 'coinbase',
+          displayName: 'Ana Ribeiro',
+          profileName: 'Ana',
+          secondaryRef: '',
+          referralCode: 'KURIO-ANA',
+          email: 'ana@kurio.dev',
+          ensSuffix: '.eth',
+          ensName: 'anaribeiro',
         }),
       })
       return { status: res.status, body: (await res.json()) as { error: { code: string } } }

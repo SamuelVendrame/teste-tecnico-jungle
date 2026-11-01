@@ -78,6 +78,13 @@ const wallet = await call<Wallet>('POST', '/api/wallets', {
     address: '0x1111111111111111111111111111111111111111',
     network: 'ethereum',
     provider: 'metamask',
+    displayName: 'Carla Smoke',
+    profileName: 'Carla S.',
+    secondaryRef: '',
+    referralCode: 'SMOKE-01',
+    email: 'carla@kurio.dev',
+    ensSuffix: '.eth',
+    ensName: 'carlasmoke',
   },
 })
 assert(wallet.status === 201, 'carteira deve ser criada')
@@ -109,7 +116,17 @@ const orderBody = {
   quoteFingerprint: quote.body.fingerprint,
   walletId: wallet.body.id,
   network: 'ethereum',
-  collector: { name: 'Carla Smoke', email: 'carla@kurio.dev', document: '12345678909' },
+  collector: {
+    displayName: 'Carla Smoke',
+    username: 'carla_smoke',
+    profileName: 'Carla S.',
+    secondaryRef: '',
+    referralCode: 'SMOKE-01',
+    email: 'carla@kurio.dev',
+    ensSuffix: '.eth',
+    ensName: 'carlasmoke',
+    note: '',
+  },
 }
 const key = 'smoke-key-0001'
 const [first, second] = await Promise.all([
