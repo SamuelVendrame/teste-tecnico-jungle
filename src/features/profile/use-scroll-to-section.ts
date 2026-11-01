@@ -29,10 +29,12 @@ export function useScrollToSection() {
     const timers = RETRY_AT_MS.map((ms) => setTimeout(scroll, ms))
     window.addEventListener('wheel', cancel, { passive: true })
     window.addEventListener('touchmove', cancel, { passive: true })
+    window.addEventListener('keydown', cancel)
     return () => {
       timers.forEach(clearTimeout)
       window.removeEventListener('wheel', cancel)
       window.removeEventListener('touchmove', cancel)
+      window.removeEventListener('keydown', cancel)
     }
   }, [hash])
 }

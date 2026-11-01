@@ -28,6 +28,9 @@ const TOAST_OPTIONS = {
 
 /** Frames mobile sem rodapé no Figma (login, cadastro, carrinho, pagamento) e pedidos. */
 const NO_MOBILE_FOOTER = /^\/(login|register|cart|checkout|orders)(\/|$)/
+/** Detalhe no mobile: a buy bar fixa precisa de folga no fim da página (rodapé incluso). */
+const BUY_BAR_SPACER = 'pb-[calc(200px+env(safe-area-inset-bottom))] md:pb-0'
+const NFT_ROUTE = /^\/nft\//
 /** Perfil e carteiras não têm rodapé no Figma em nenhuma largura. */
 const NO_FOOTER = /^\/(profile|wallets)(\/|$)/
 
@@ -50,7 +53,13 @@ function RootLayout() {
   return (
     <TooltipProvider delayDuration={200}>
       <SkipLink />
-      <div className={cn('flex min-h-dvh flex-col', tabBarVisible && TAB_BAR_SPACER)}>
+      <div
+        className={cn(
+          'flex min-h-dvh flex-col',
+          tabBarVisible && TAB_BAR_SPACER,
+          NFT_ROUTE.test(pathname) && BUY_BAR_SPACER,
+        )}
+      >
         <MocksUnavailableBanner />
         <Header />
         <main id={MAIN_CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">

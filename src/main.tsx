@@ -10,6 +10,7 @@ import { RouterProvider, createRouter } from '@tanstack/react-router'
 
 import { MOCKS_ENABLED, markMocksFailed, markMocksReady } from '@/app/mocks-ready'
 import { queryClient } from '@/app/query-client'
+import { clearPrivateStorage } from '@/features/checkout/checkout-storage'
 import { sessionStore } from '@/features/session/session-store'
 import { routeTree } from './routeTree.gen'
 
@@ -42,6 +43,9 @@ if (MOCKS_ENABLED) {
   if (reset === '1' || reset === 'true') {
     sessionStore.clear()
     sessionStore.resetGuestCartId()
+    // Rascunho do checkout, tentativa em aberto e pedido pendente apontariam para
+    // cotações e pedidos que o seed novo não tem (o userId do seed é o mesmo).
+    clearPrivateStorage()
   }
   import('@/mocks/browser')
     .then(({ startMocks }) => startMocks())

@@ -17,6 +17,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { FILL_CREDENTIALS_EVENT } from '@/features/auth/fill-credentials-event'
+import { clearPrivateStorage } from '@/features/checkout/checkout-storage'
 import { sessionStore, useSession } from '@/features/session/session-store'
 import { queryKeys } from '@/lib/query-keys'
 import { cn } from '@/lib/utils'
@@ -104,6 +105,7 @@ export default function DevPanelContent() {
       // Os dados voltam ao estado conhecido: tokens e cache anteriores deixam de valer.
       sessionStore.clear()
       sessionStore.resetGuestCartId()
+      clearPrivateStorage()
       toast.success('Dados restaurados. Recarregando...')
       window.location.reload()
     } catch {

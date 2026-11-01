@@ -77,7 +77,7 @@ function NftDetail({ nft }: { nft: Nft }) {
   }
 
   return (
-    <article className="pb-[176px] md:pb-0">
+    <article>
       <Container className="px-0 sm:px-0 md:px-6 md:pt-8 xl:px-4">
         <Breadcrumb nft={nft} />
         <div className="md:mt-3 lg:grid lg:grid-cols-[573px_minmax(0,1fr)] lg:gap-8">
