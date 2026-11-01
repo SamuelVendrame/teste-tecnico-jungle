@@ -54,8 +54,13 @@ export function OrdersSection() {
     b.createdAt.localeCompare(a.createdAt),
   )
 
+  // Última seção da página: a altura mínima deixa /profile#pedidos rolar até o topo.
   return (
-    <section id="pedidos" aria-labelledby="pedidos-title" className="scroll-mt-24 space-y-5">
+    <section
+      id="pedidos"
+      aria-labelledby="pedidos-title"
+      className="min-h-[calc(100dvh-7rem)] scroll-mt-24 space-y-5"
+    >
       <h2 id="pedidos-title" className="text-base font-bold text-text-primary">
         Pedidos
       </h2>

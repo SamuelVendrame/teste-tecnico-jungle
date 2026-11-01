@@ -114,8 +114,9 @@ export function CartItemRow({
             </p>
             {/* Mobile: preço à esquerda e stepper à direita na mesma linha, como no Figma.
                 A ajuda ("Máximo de N unidades") fica sob o stepper e o card cresce. */}
-            <div className="-mr-7 mt-3 flex items-end justify-between gap-2 md:hidden">
-              <p className="shrink-0 whitespace-nowrap">
+            <div className="-mr-7 mt-3 flex items-start justify-between gap-2 md:hidden">
+              {/* Mesma altura dos botões do stepper: a ajuda abaixo dele não desalinha o preço. */}
+              <p className="flex h-[30px] shrink-0 items-center whitespace-nowrap">
                 <span className="sr-only">Total do item: </span>
                 <EthAmount value={lineTotal} className="text-[17px] font-bold text-text-accent" />
               </p>

@@ -7,10 +7,12 @@ import { OrdersSection } from './OrdersSection'
 import { ProfileForm } from './ProfileForm'
 import { ProfileHeaderCard } from './ProfileHeaderCard'
 import { useProfile } from './use-profile'
+import { useScrollToSection } from './use-scroll-to-section'
 
 /** Perfil do colecionador: resumo, dados, senha, favoritos e pedidos. */
 export function ProfilePage() {
   const user = useProfile()
+  useScrollToSection()
 
   return (
     <Container className="py-6 lg:py-8">
