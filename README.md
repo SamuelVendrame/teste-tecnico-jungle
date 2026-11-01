@@ -2,7 +2,7 @@
 
 Implementação do desafio frontend "NFT Marketplace" (enunciado em [CHALLENGE.md](./CHALLENGE.md)). Decisões de arquitetura em [ARCHITECTURE.md](./ARCHITECTURE.md).
 
-**Demo:** _(URL pública a preencher)_
+**Demo:** https://teste-tecnico-jungle.vercel.app
 
 ## Stack
 
