@@ -18,7 +18,8 @@ export function CatalogLink(props: Props) {
 
   function onClick(event: MouseEvent<HTMLAnchorElement>) {
     if (location.pathname !== '/') return
-    if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey) return
+    if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+      return
     event.preventDefault()
     const hash = location.hash.replace(/^#/, '')
     const atCatalog = hash === CATALOG_SECTION_ID && Object.keys(location.search).length === 0

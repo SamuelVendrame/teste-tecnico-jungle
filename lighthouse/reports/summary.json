@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-31T22:25:30.752Z",
+  "generatedAt": "2026-11-01T01:22:36.429Z",
   "baseUrl": "http://localhost:4173",
   "runs": 3,
   "tools": {
     "lighthouse": "13.6.0",
     "node": "v24.12.0",
-    "chrome": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "chrome": "HeadlessChrome/156.0.0.0",
     "platform": "win32 x64"
   },
   "results": [
@@ -14,16 +14,16 @@
       "url": "http://localhost:4173/",
       "profile": "mobile",
       "median": {
-        "performance": 78,
+        "performance": 76,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "runs": {
         "performance": [
-          78,
-          78,
-          81
+          76,
+          76,
+          66
         ],
         "accessibility": [
           100,
@@ -42,9 +42,9 @@
         ]
       },
       "metricsMedian": {
-        "lcpMs": 5100,
+        "lcpMs": 5200,
         "cls": 0.032,
-        "tbtMs": 185
+        "tbtMs": 247
       }
     },
     {
@@ -80,9 +80,9 @@
         ]
       },
       "metricsMedian": {
-        "lcpMs": 921,
+        "lcpMs": 994,
         "cls": 0.001,
-        "tbtMs": 0
+        "tbtMs": 2
       }
     },
     {
@@ -90,16 +90,16 @@
       "url": "http://localhost:4173/nft/emerald-ape-042",
       "profile": "mobile",
       "median": {
-        "performance": 85,
+        "performance": 84,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "runs": {
         "performance": [
-          85,
-          85,
-          85
+          84,
+          84,
+          84
         ],
         "accessibility": [
           100,
@@ -118,9 +118,9 @@
         ]
       },
       "metricsMedian": {
-        "lcpMs": 4333,
+        "lcpMs": 4413,
         "cls": 0.015,
-        "tbtMs": 43
+        "tbtMs": 108
       }
     },
     {
@@ -156,7 +156,7 @@
         ]
       },
       "metricsMedian": {
-        "lcpMs": 916,
+        "lcpMs": 957,
         "cls": 0,
         "tbtMs": 0
       }

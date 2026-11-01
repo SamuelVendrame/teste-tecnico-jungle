@@ -44,7 +44,7 @@ function ReviewItem({ review }: { review: NftReview }) {
           </span>
           <time dateTime={review.createdAt}>{dateFormat.format(new Date(review.createdAt))}</time>
         </div>
-        <h3 className="mt-2 text-sm font-bold text-text-primary">{review.title}</h3>
+        <p className="mt-2 text-sm font-bold text-text-primary">{review.title}</p>
         <p className="mt-1 text-sm leading-6 text-text-secondary">{review.body}</p>
       </div>
     </article>
@@ -76,23 +76,29 @@ function ReviewsSkeleton() {
 
 /** Aba "Avaliações de colecionadores" (GET /nfts/:slug/reviews, carregada ao abrir a aba). */
 export function NftReviews({ nft }: { nft: Nft }) {
-  const { data, isLoading, isError, refetch } = useQuery(nftReviewsOptions(nft.slug))
+  const { data, isLoading, isError, isFetching, refetch } = useQuery(nftReviewsOptions(nft.slug))
   const [visible, setVisible] = useState(PAGE)
 
   if (isLoading) return <ReviewsSkeleton />
 
-  if (isError || !data) {
+  // Falha sem dados: alerta com nova tentativa. Falha num refetch em segundo plano mantém a lista.
+  if (!data) {
     return (
-      <div className="flex flex-wrap items-center gap-3 text-sm text-text-secondary" role="alert">
-        Não foi possível carregar as avaliações.
+      <div
+        className="flex flex-wrap items-center gap-3 text-sm text-text-secondary"
+        role="alert"
+        aria-busy={isFetching}
+      >
+        {isError ? 'Não foi possível carregar as avaliações.' : 'Avaliações indisponíveis.'}
         <Button
           type="button"
           size="sm"
           variant="outline"
           onClick={() => void refetch()}
+          disabled={isFetching}
           className="rounded-[4px] border-border-soft bg-transparent"
         >
-          Tentar novamente
+          {isFetching ? 'Tentando novamente…' : 'Tentar novamente'}
         </Button>
       </div>
     )

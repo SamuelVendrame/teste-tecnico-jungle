@@ -87,17 +87,51 @@ async function main() {
           const result = await lighthouse(
             url,
             { port: chrome.port, output: ['html', 'json'], logLevel: 'error' },
-            { ...config, settings: { ...config.settings, formFactor: profile, screenEmulation: profile === 'desktop' ? { mobile: false, width: 1440, height: 900, deviceScaleFactor: 1, disabled: false } : { mobile: true, width: 412, height: 823, deviceScaleFactor: 1.75, disabled: false }, throttling: profile === 'desktop' ? { rttMs: 40, throughputKbps: 10240, cpuSlowdownMultiplier: 1 } : config.settings.throttling } },
+            {
+              ...config,
+              settings: {
+                ...config.settings,
+                formFactor: profile,
+                screenEmulation:
+                  profile === 'desktop'
+                    ? {
+                        mobile: false,
+                        width: 1440,
+                        height: 900,
+                        deviceScaleFactor: 1,
+                        disabled: false,
+                      }
+                    : {
+                        mobile: true,
+                        width: 412,
+                        height: 823,
+                        deviceScaleFactor: 1.75,
+                        disabled: false,
+                      },
+                throttling:
+                  profile === 'desktop'
+                    ? { rttMs: 40, throughputKbps: 10240, cpuSlowdownMultiplier: 1 }
+                    : config.settings.throttling,
+              },
+            },
           )
           const lhr = result.lhr
-          for (const c of CATEGORIES) scores[c].push(Math.round((lhr.categories[c]?.score ?? 0) * 100))
+          // Versão real do Chrome usado (o launcher só conhece o executável).
+          summary.tools.chrome =
+            lhr.environment?.hostUserAgent?.match(/(?:Headless)?Chrome\/[\d.]+/)?.[0] ??
+            summary.tools.chrome
+          for (const c of CATEGORIES)
+            scores[c].push(Math.round((lhr.categories[c]?.score ?? 0) * 100))
           metrics.lcp.push(lhr.audits['largest-contentful-paint'].numericValue)
           metrics.cls.push(lhr.audits['cumulative-layout-shift'].numericValue)
           metrics.tbt.push(lhr.audits['total-blocking-time'].numericValue)
           const base = path.join(OUT_DIR, `${page.id}-${profile}-run${run}`)
           await writeFile(`${base}.html`, result.report[0])
           await writeFile(`${base}.json`, result.report[1])
-          console.log(`${page.id} ${profile} run ${run}:`, CATEGORIES.map((c) => `${c}=${scores[c].at(-1)}`).join(' '))
+          console.log(
+            `${page.id} ${profile} run ${run}:`,
+            CATEGORIES.map((c) => `${c}=${scores[c].at(-1)}`).join(' '),
+          )
         }
         summary.results.push({
           page: page.id,
@@ -122,7 +156,7 @@ async function main() {
   const md = [
     `# Lighthouse — resumo (${summary.generatedAt})`,
     '',
-    `Lighthouse ${summary.tools.lighthouse} · Node ${summary.tools.node} · ${summary.tools.platform} · ${RUNS} medições por página/perfil, mediana reportada.`,
+    `Lighthouse ${summary.tools.lighthouse} · ${summary.tools.chrome} · Node ${summary.tools.node} · ${summary.tools.platform} · ${RUNS} medições por página/perfil, mediana reportada.`,
     '',
     '| Página | Perfil | Performance | Accessibility | Best Practices | SEO | LCP (ms) | CLS | TBT (ms) |',
     '| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',

@@ -41,7 +41,7 @@ Pontos de contrato que a UI depende:
 - Login/cadastro devolvem `{ user, token, expiresAt }`. O store (`session-store.ts`) persiste em `localStorage['kurio:session']` e injeta `Authorization: Bearer` via interceptor do Axios.
 - Ao carregar a app, se existe token, `SessionLifecycle` valida com `GET /auth/session`. Token expirado no relógio local ou 401 na API colocam o store em `expired`: o diálogo "Sua sessão expirou" oferece entrar de novo (com `returnTo` para a rota atual) ou continuar como visitante.
 - Rotas privadas (`/checkout`, `/profile`, `/wallets`, `/orders/*`) usam `requireAuth` em `beforeLoad`: guardam `returnTo` e redirecionam para `/login`. Só caminhos da mesma origem são aceitos como `returnTo`.
-- Logout e troca de usuário: `authApi.logout` (falha ignorada), `sessionStore.clear()`, remoção de toda query cujo primeiro segmento não é `nfts` e re-bind do socket com token `null`. Nada do usuário anterior sobrevive em cache ou em assinaturas.
+- Logout e troca de usuário: `authApi.logout` (falha ignorada), `sessionStore.clear()`, remoção de toda query cujo primeiro segmento não é `nfts`, descarte do estado de conexão das carteiras (só vive no cliente) e re-bind do socket com token `null`. Nada do usuário anterior sobrevive em cache ou em assinaturas.
 - Senhas nunca ficam em claro: o mock guarda SHA-256 e o cliente não persiste a senha.
 
 ## Estado do carrinho
