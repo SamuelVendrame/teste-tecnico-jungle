@@ -101,7 +101,7 @@ export function CartItemRow({
               className="size-[100px] rounded-[10px] object-cover md:size-[70px] md:rounded-[4px]"
             />
           </Link>
-          <div className="min-w-0 flex-1 py-3 pr-12 md:p-0">
+          <div className="min-w-0 flex-1 py-3 pr-10 md:p-0">
             <Link
               to="/nft/$slug"
               params={{ slug: item.nft.slug }}
@@ -112,11 +112,15 @@ export function CartItemRow({
             <p className="mt-1.5 truncate text-[13px] text-text-secondary">
               Edição: {item.edition.name}
             </p>
-            {/* Mobile: preço do item abaixo do nome, como no Figma. */}
-            <p className="mt-3 md:hidden">
-              <span className="sr-only">Total do item: </span>
-              <EthAmount value={lineTotal} className="text-[17px] font-bold text-text-accent" />
-            </p>
+            {/* Mobile: preço à esquerda e stepper à direita na mesma linha, como no Figma.
+                A ajuda ("Máximo de N unidades") fica sob o stepper e o card cresce. */}
+            <div className="-mr-7 mt-3 flex items-end justify-between gap-2 md:hidden">
+              <p className="shrink-0 whitespace-nowrap">
+                <span className="sr-only">Total do item: </span>
+                <EthAmount value={lineTotal} className="text-[17px] font-bold text-text-accent" />
+              </p>
+              <div className="shrink-0 [&_p]:max-w-[104px] [&_p]:text-right">{stepper}</div>
+            </div>
           </div>
         </div>
 
@@ -125,7 +129,7 @@ export function CartItemRow({
           <EthAmount value={unitPriceEth} />
         </p>
 
-        <div className="absolute right-3 bottom-3 md:static">{stepper}</div>
+        <div className="hidden md:block">{stepper}</div>
 
         <p className="hidden text-[15px] font-bold text-text-accent md:block">
           <span className="sr-only">Total do item: </span>

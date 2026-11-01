@@ -63,7 +63,7 @@ async function mockControl<T = unknown>(path: string, body?: unknown): Promise<T
  */
 function triggerPosition(pathname: string): string {
   if (pathname.startsWith('/nft/')) return 'bottom-[188px] left-4'
-  if (pathname.startsWith('/checkout')) return 'top-3 right-4'
+  if (/^\/(cart|checkout)/.test(pathname)) return 'top-3 right-4'
   if (/^\/(login|register)/.test(pathname)) return 'top-4 left-4'
   return 'bottom-[138px] left-4'
 }

@@ -26,7 +26,8 @@ const TOAST_OPTIONS = {
   actionButtonStyle: { background: 'var(--kurio-primary)', color: 'var(--kurio-ink)' },
 }
 
-const AUTH_ROUTE = /^\/(login|register)(\/|$)/
+/** Frames mobile sem rodapé no Figma (login, cadastro, carrinho, pagamento) e páginas da conta. */
+const NO_MOBILE_FOOTER = /^\/(login|register|cart|checkout|profile|wallets|orders)(\/|$)/
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootLayout,
@@ -41,8 +42,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 function RootLayout() {
   const tabBarVisible = useTabBarVisible()
   const pathname = useRouterState({ select: (state) => state.location.pathname })
-  // Login e cadastro ocupam a tela inteira no mobile (Figma): sem footer nem newsletter.
-  const authRoute = AUTH_ROUTE.test(pathname)
+  // Login, cadastro, carrinho, pagamento e conta ocupam a tela inteira no mobile: sem footer.
   // Socket.IO (eventos nft.updated / order.updated) vive no ciclo de vida do shell.
   useRealtime()
   return (
@@ -54,7 +54,7 @@ function RootLayout() {
         <main id={MAIN_CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">
           <Outlet />
         </main>
-        <Footer className={cn(authRoute && 'hidden md:block')} />
+        <Footer className={cn(NO_MOBILE_FOOTER.test(pathname) && 'hidden md:block')} />
       </div>
       <MobileTabBar />
       <SessionLifecycle />

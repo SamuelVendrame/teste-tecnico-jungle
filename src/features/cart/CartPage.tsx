@@ -88,7 +88,9 @@ export function CartPage() {
             </Button>
           }
         />
-        <AlsoViewed slug={undefined} />
+        <div className="hidden md:block">
+          <AlsoViewed slug={undefined} />
+        </div>
       </Container>
     )
   }
@@ -217,7 +219,9 @@ export function CartPage() {
         />
       </div>
 
-      <AlsoViewed slug={cart.items[0]?.nft.slug} />
+      <div className="hidden md:block">
+        <AlsoViewed slug={cart.items[0]?.nft.slug} />
+      </div>
     </Container>
   )
 }
