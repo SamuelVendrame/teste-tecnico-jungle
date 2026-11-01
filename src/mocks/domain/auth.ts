@@ -45,6 +45,21 @@ export interface AuthContext {
  * - Token desconhecido/expirado: 401 (o cliente marca a sessão como expirada).
  * - Cenário `session-expired`: a primeira requisição autenticada derruba a sessão.
  */
+/**
+ * Encerra a sessão e desfaz as conexões de carteira da conta: sem sessão, nenhuma
+ * carteira continua "conectada" no servidor simulado (expiração, cenário ou logout).
+ */
+function dropSession(token: string): void {
+  const db = getDb()
+  const session = db.sessions[token]
+  if (!session) return
+  for (const wallet of Object.values(db.wallets)) {
+    if (wallet.userId === session.userId) delete db.walletConnections[wallet.id]
+  }
+  delete db.sessions[token]
+  commit()
+}
+
 export function optionalAuth(request: Request): AuthContext | null {
   const token = bearerToken(request)
   if (!token) return null
@@ -52,13 +67,11 @@ export function optionalAuth(request: Request): AuthContext | null {
   const session = db.sessions[token]
   if (!session) throw problems.unauthorized()
   if (Date.parse(session.expiresAt) <= now().getTime()) {
-    delete db.sessions[token]
-    commit()
+    dropSession(token)
     throw problems.unauthorized('Sua sessão expirou. Entre novamente.')
   }
   if (consumeSessionExpiry()) {
-    delete db.sessions[token]
-    commit()
+    dropSession(token)
     throw problems.unauthorized('Sua sessão expirou. Entre novamente.')
   }
   const user = db.users[session.userId]
@@ -73,10 +86,8 @@ export function requireAuth(request: Request): AuthContext {
 }
 
 export function revokeSession(token: string): boolean {
-  const db = getDb()
-  if (!db.sessions[token]) return false
-  delete db.sessions[token]
-  commit()
+  if (!getDb().sessions[token]) return false
+  dropSession(token)
   return true
 }
 
