@@ -174,7 +174,9 @@ function WalletForm({
                 value={field.value}
                 onValueChange={field.onChange}
                 onBlur={field.onBlur}
-                className="grid-cols-1 gap-2 sm:grid-cols-3"
+                // flex-wrap: "WalletConnect" não cabe em 1/3 do diálogo; cada opção usa a largura
+                // que precisa e as outras crescem para preencher a linha.
+                className="flex flex-wrap gap-2"
               >
                 {PROVIDERS.map((provider) => {
                   const itemId = `${c.id}-${provider}`
@@ -183,7 +185,7 @@ function WalletForm({
                       key={provider}
                       htmlFor={itemId}
                       className={cn(
-                        'flex h-10 cursor-pointer items-center gap-2 rounded-sm border border-border-soft px-3 text-xs text-text-primary transition-colors',
+                        'flex h-10 min-w-fit grow basis-full cursor-pointer sm:basis-0 items-center gap-1.5 rounded-sm border border-border-soft px-2.5 text-xs whitespace-nowrap text-text-primary transition-colors',
                         'has-[[data-state=checked]]:border-brand has-[[data-state=checked]]:bg-surface-dark/60 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring',
                       )}
                     >
