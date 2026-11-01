@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Design tokens extraídos do Figma (design/tokens.json).
+ * Design tokens extraídos do Figma.
  * O tema é único e escuro; shadcn/ui é mapeado sobre essas variáveis.
  */
 :root {

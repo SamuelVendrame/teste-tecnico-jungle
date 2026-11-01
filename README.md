@@ -1,6 +1,6 @@
 # Kurio · Marketplace de NFTs
 
-Implementação do desafio frontend "NFT Marketplace" (enunciado em [CHALLENGE.md](./CHALLENGE.md)). Decisões de arquitetura em [ARCHITECTURE.md](./ARCHITECTURE.md).
+Implementação do desafio frontend "NFT Marketplace": marketplace completo com catálogo, compra, conta do colecionador, tempo real e API simulada no navegador. Decisões de arquitetura em [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 **Demo:** https://teste-tecnico-jungle.vercel.app
 
