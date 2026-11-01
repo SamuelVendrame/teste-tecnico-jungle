@@ -79,7 +79,7 @@ export function Footer({ className }: { className?: string }) {
           </div>
 
           {/* Faixa de contato */}
-          <div className="grid grid-cols-2 gap-x-6 gap-y-4 bg-surface-dark px-6 py-6 text-sm text-text-primary md:px-8 lg:grid-cols-4 lg:py-7">
+          <div className="grid grid-cols-1 gap-x-6 gap-y-4 bg-surface-dark px-6 py-6 text-sm text-text-primary min-[360px]:grid-cols-2 md:px-8 lg:grid-cols-4 lg:py-7">
             <p className="font-bold tracking-[0.12em]">KURIO</p>
             <p className="max-w-[230px] leading-[22px]">
               Feito para colecionadores, criadores e cultura
@@ -93,7 +93,7 @@ export function Footer({ className }: { className?: string }) {
           </div>
 
           {/* Links */}
-          <div className="grid grid-cols-2 gap-x-6 gap-y-8 px-6 py-8 md:px-8 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-x-6 gap-y-8 px-6 py-8 min-[360px]:grid-cols-2 md:px-8 lg:grid-cols-4">
             <nav aria-labelledby="footer-perfil">
               <h2 id="footer-perfil" className="mb-2 text-lg font-bold text-text-primary">
                 Meu perfil
@@ -207,7 +207,7 @@ function Newsletter() {
   }
 
   return (
-    <div className="md:col-span-2 lg:col-span-1 lg:border-l lg:border-brand lg:pl-4">
+    <div className="min-w-0 md:col-span-2 lg:col-span-1 lg:border-l lg:border-brand lg:pl-4">
       <h2 className="text-lg leading-4 font-bold text-text-primary">
         Antecipe-se ao próximo lançamento
       </h2>
@@ -221,6 +221,7 @@ function Newsletter() {
             type="email"
             inputMode="email"
             autoComplete="email"
+            size={1}
             value={email}
             onChange={(event) => {
               setEmail(event.target.value)
