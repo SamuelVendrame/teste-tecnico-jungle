@@ -252,9 +252,6 @@ function NftSummary({ nft, purchase }: { nft: Nft; purchase: NftPurchase }) {
           value={edition.id}
           onChange={purchase.selectEdition}
         />
-        <p className="mt-2 text-xs text-text-secondary md:hidden" aria-live="polite">
-          {purchase.helperText}
-        </p>
       </div>
     </div>
   )
@@ -363,6 +360,10 @@ function ShareRow({ nft }: { nft: Nft }) {
 function MobileBuyBar({ purchase, pending, onBuy, onAdd }: PurchaseActions) {
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 rounded-t-[32px] bg-card px-6 pt-5 pb-[max(20px,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_rgba(0,0,0,0.4)] md:hidden">
+      {/* "Máximo de N por pedido" / "Apenas N disponíveis" junto do seletor, onde o limite é sentido. */}
+      <p className="mb-2 min-h-4 text-xs text-text-secondary" aria-live="polite">
+        {purchase.helperText}
+      </p>
       <div className="flex items-center justify-between gap-4">
         <QuantityStepper
           value={purchase.quantity}

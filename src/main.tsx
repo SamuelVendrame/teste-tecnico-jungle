@@ -10,6 +10,7 @@ import { RouterProvider, createRouter } from '@tanstack/react-router'
 
 import { MOCKS_ENABLED, markMocksFailed, markMocksReady } from '@/app/mocks-ready'
 import { queryClient } from '@/app/query-client'
+import { sessionStore } from '@/features/session/session-store'
 import { routeTree } from './routeTree.gen'
 
 const router = createRouter({
@@ -33,6 +34,15 @@ declare module '@tanstack/react-router' {
  * requisições esperam `mocksReady` (ver src/app/mocks-ready.ts).
  */
 if (MOCKS_ENABLED) {
+  // `?reset=1` recria o banco simulado, inclusive as sessões do servidor: o token e o
+  // carrinho de visitante guardados no navegador deixam de valer e são limpos junto,
+  // como no botão "Resetar dados" do painel. Sem isso o primeiro request voltava 401
+  // e a app abria "Sua sessão expirou" logo depois de um link de cenário.
+  const reset = new URLSearchParams(window.location.search).get('reset')
+  if (reset === '1' || reset === 'true') {
+    sessionStore.clear()
+    sessionStore.resetGuestCartId()
+  }
   import('@/mocks/browser')
     .then(({ startMocks }) => startMocks())
     .then(markMocksReady)
