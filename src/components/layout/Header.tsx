@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { cartItemCount, useCart } from '@/features/cart/use-cart'
+import { CatalogLink } from '@/features/catalog/CatalogLink'
 import { useSession } from '@/features/session/session-store'
 import { useLogout } from '@/features/session/use-auth'
 import { cn } from '@/lib/utils'
@@ -66,14 +67,12 @@ export function Header() {
                 </Link>
               </li>
               <li className="h-full">
-                <Link
-                  to="/"
-                  hash="catalogo"
+                <CatalogLink
                   className={cn(navItem, active === 'mercado' && navActive)}
                   aria-current={active === 'mercado' ? 'page' : undefined}
                 >
                   Mercado
-                </Link>
+                </CatalogLink>
               </li>
               {['Criadores', 'Aprenda'].map((label) => (
                 <li key={label} className="h-full">

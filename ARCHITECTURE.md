@@ -14,15 +14,15 @@ Aplicação SPA em React 19 + TypeScript, servida estaticamente (Vercel). Não e
 
 ## Camadas e responsabilidades
 
-| Camada | Pasta | Responsabilidade |
-| --- | --- | --- |
-| Contratos | `src/api/contracts.ts` | Schemas Zod e tipos de todo recurso, erro e evento. Fonte única usada por transporte, estado, UI e mocks. |
-| Transporte | `src/api/client.ts`, `src/api/endpoints.ts` | Instância Axios (token, `X-Cart-Id`, request id, normalização de erros em `ApiClientError`) e uma função por operação, com validação Zod da resposta. |
-| Estado remoto | `src/features/*/use-*.ts`, `src/lib/query-keys.ts` | Queries e mutations do TanStack Query, invalidação e atualizações otimistas. |
-| Sessão | `src/features/session` | Store externo (`useSyncExternalStore`) persistido, guard de rotas, ciclo de vida (restauração, expiração, logout). |
-| Tempo real | `src/realtime` | Cliente socket.io, deduplicação por `eventId`, guarda de versão, aplicação no cache e reconciliação após reconexão. |
-| Rotas | `src/routes` | File-based routing (TanStack Router) com search params tipados e loaders que pré-carregam o cache. |
-| Mocks | `src/mocks` | Banco em memória persistido, fixtures, handlers REST, servidor Socket.IO simulado, cenários de rede e endpoints de controle `/__mock/*`. |
+| Camada        | Pasta                                              | Responsabilidade                                                                                                                                      |
+| ------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Contratos     | `src/api/contracts.ts`                             | Schemas Zod e tipos de todo recurso, erro e evento. Fonte única usada por transporte, estado, UI e mocks.                                             |
+| Transporte    | `src/api/client.ts`, `src/api/endpoints.ts`        | Instância Axios (token, `X-Cart-Id`, request id, normalização de erros em `ApiClientError`) e uma função por operação, com validação Zod da resposta. |
+| Estado remoto | `src/features/*/use-*.ts`, `src/lib/query-keys.ts` | Queries e mutations do TanStack Query, invalidação e atualizações otimistas.                                                                          |
+| Sessão        | `src/features/session`                             | Store externo (`useSyncExternalStore`) persistido, guard de rotas, ciclo de vida (restauração, expiração, logout).                                    |
+| Tempo real    | `src/realtime`                                     | Cliente socket.io, deduplicação por `eventId`, guarda de versão, aplicação no cache e reconciliação após reconexão.                                   |
+| Rotas         | `src/routes`                                       | File-based routing (TanStack Router) com search params tipados e loaders que pré-carregam o cache.                                                    |
+| Mocks         | `src/mocks`                                        | Banco em memória persistido, fixtures, handlers REST, servidor Socket.IO simulado, cenários de rede e endpoints de controle `/__mock/*`.              |
 
 ## Contratos REST e eventos
 
@@ -78,7 +78,7 @@ Definida em `src/app/query-client.ts`:
 
 - O socket simulado vive na aba: eventos gerados numa aba não chegam às outras (elas se atualizam pelo REST). Só WebSocket, sem long-polling, namespaces, rooms ou acks (ver README-socket).
 - Avaliações de colecionadores são só leitura: o contrato expõe o resumo em `nft.rating` e a lista em `GET /nfts/:slug/reviews`, carregada ao abrir a aba (6 por vez). Não há escrita de avaliação porque o Figma não desenha esse fluxo.
-- Links fora do escopo (Mercado, Criadores, Aprenda, Central de ajuda, redes sociais, "Ler mais" do blog) ficam desabilitados com tooltip "Em breve"; a newsletter valida o e-mail e avisa que nada foi cadastrado. Nenhuma ação fora do escopo aparenta sucesso.
+- "Mercado" no menu e na trilha de navegação leva ao catálogo da página inicial (`/#catalogo`, com filtros e página zerados): o Figma não tem uma página de mercado separada. Links fora do escopo (Criadores, Aprenda, Central de ajuda, redes sociais, "Ler mais" do blog) ficam desabilitados com tooltip "Em breve"; a newsletter valida o e-mail e avisa que nada foi cadastrado. Nenhuma ação fora do escopo aparenta sucesso.
 - Favoritos e Pedidos não têm frame no Figma; vivem como seções da página de perfil.
 - A conexão de carteira passa por `POST /wallets/:id/connect` no mock (aprovação após a latência do cenário; recusa = 409 `WALLET_REFUSED`) e é exigida pela UI para confirmar o pedido. O estado "conectada" vive só no cliente (não é persistido) e o `POST /orders` não o revalida; desconectar é local.
 - Perfil, carteiras e confirmação não têm frame mobile; foram adaptados mantendo a linguagem visual.

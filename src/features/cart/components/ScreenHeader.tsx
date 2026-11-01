@@ -1,6 +1,7 @@
 import { Link, useCanGoBack, useRouter } from '@tanstack/react-router'
 import { ChevronLeftIcon } from 'lucide-react'
 
+import { CatalogLink } from '@/features/catalog/CatalogLink'
 import { cn } from '@/lib/utils'
 
 interface ScreenHeaderProps {
@@ -54,9 +55,7 @@ export function PurchaseBreadcrumb({ current, className }: BreadcrumbProps) {
         </li>
         <li aria-hidden>/</li>
         <li>
-          <Link to="/" hash="catalogo" className="hover:text-text-accent">
-            Mercado
-          </Link>
+          <CatalogLink className="hover:text-text-accent">Mercado</CatalogLink>
         </li>
         <li aria-hidden>/</li>
         <li aria-current="page">{current}</li>
