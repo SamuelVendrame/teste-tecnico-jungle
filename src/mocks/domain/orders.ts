@@ -129,6 +129,14 @@ async function doCreate(
   if (!wallet || wallet.userId !== user.id) {
     throw problems.validation({ walletId: ['Selecione uma carteira cadastrada.'] })
   }
+  // A conexão aprovada em POST /wallets/:id/connect é revalidada aqui: sem ela, não há pedido.
+  if (!db.walletConnections[wallet.id]) {
+    throw new ApiProblem(
+      409,
+      'WALLET_NOT_CONNECTED',
+      'Conecte a carteira antes de confirmar a compra.',
+    )
+  }
 
   const createdAt = nowIso()
   const order: Order = {

@@ -108,6 +108,8 @@ export interface MockDb {
   /** `${userId}:${idempotencyKey}` -> registro. Escopo por usuário: chaves nunca vazam entre contas. */
   idempotency: Record<string, DbIdempotencyRecord>
   wallets: Record<string, Wallet>
+  /** walletId -> ISO de quando a conexão simulada foi aprovada. O pedido exige a carteira aqui. */
+  walletConnections: Record<string, string>
   networkFees: Record<NetworkId, string>
 }
 

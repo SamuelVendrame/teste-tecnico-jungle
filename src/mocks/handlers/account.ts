@@ -129,6 +129,18 @@ export const accountHandlers = [
         'A conexão foi recusada na carteira. Aprove a solicitação e tente de novo.',
       )
     }
+    getDb().walletConnections[wallet.id] = nowIso()
+    commit()
     return json<WalletConnection>({ status: 'connected' })
+  }),
+
+  route('post', '/wallets/:walletId/disconnect', ({ request, params }) => {
+    const { user } = requireAuth(request)
+    const wallet = getDb().wallets[param(params, 'walletId')]
+    if (!wallet) throw problems.notFound('Carteira não encontrada.')
+    if (wallet.userId !== user.id) throw problems.forbidden('Esta carteira pertence a outra conta.')
+    delete getDb().walletConnections[wallet.id]
+    commit()
+    return json<WalletConnection>({ status: 'disconnected' })
   }),
 ]

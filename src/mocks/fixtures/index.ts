@@ -103,6 +103,7 @@ export function createSeed(): MockDb {
     orderJobs: {},
     idempotency: {},
     wallets: Object.fromEntries(SEED_WALLETS.map((w) => [w.id, structuredClone(w)])),
+    walletConnections: {},
     networkFees: { ...SEED_NETWORK_FEES },
   }
 }

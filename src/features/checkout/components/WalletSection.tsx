@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import {
   connectWallet,
+  disconnectWallet,
   getWalletConnection,
   setWalletConnection,
   useWalletConnection,
@@ -159,7 +160,7 @@ function ConnectionControls({ walletId, disabled }: { walletId: string; disabled
   }
 
   function disconnect() {
-    setWalletConnection(walletId, 'disconnected')
+    disconnectWallet(walletId)
     announce('Carteira desconectada.')
   }
 

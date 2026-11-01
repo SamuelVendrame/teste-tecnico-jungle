@@ -319,7 +319,8 @@ export function CheckoutPage() {
             form={form}
             network={network}
             onNetworkChange={setNetworkChoice}
-            networkDisabled={createOrder.pending}
+            networkDisabled={createOrder.pending || createOrder.hasOpenAttempt}
+            locked={createOrder.hasOpenAttempt}
             wallet={selectedWallet}
             wallets={wallets}
             onSelectWallet={(id) => {
@@ -365,7 +366,10 @@ export function CheckoutPage() {
             />
           )}
 
-          <div className="sticky bottom-0 z-10 order-5 -mx-4 -mb-10 flex flex-col gap-3 bg-linear-to-t from-background from-80% to-transparent px-4 pt-6 pb-6 sm:-mx-6 sm:px-6 md:static md:mx-0 md:mb-0 md:bg-none md:p-0 lg:order-none">
+          <div
+            data-testid="checkout-bar"
+            className="sticky bottom-0 z-10 order-5 -mx-4 -mb-10 flex flex-col gap-3 bg-linear-to-t from-background from-80% to-transparent px-4 pt-6 pb-6 sm:-mx-6 sm:px-6 md:static md:mx-0 md:mb-0 md:bg-none md:p-0 lg:order-none"
+          >
             {totalForBar && (
               <p className="flex items-baseline justify-end gap-6 text-lg font-bold md:hidden">
                 <span>Total:</span>

@@ -36,6 +36,7 @@ import {
 } from '@/api/contracts'
 import { orderApi } from '@/api/endpoints'
 import { announce } from '@/components/common/announce'
+import { setWalletConnection } from '@/features/wallets/wallet-connection-store'
 import { queryKeys } from '@/lib/query-keys'
 
 import {
@@ -99,7 +100,7 @@ export function useCreateOrder({ userId, onStaleQuote }: Options) {
       announce('Pedido enviado. Aguardando confirmação da rede.')
       void navigate({ to: '/orders/$orderId', params: { orderId: order.id } })
     },
-    onError: (error) => {
+    onError: (error, variables) => {
       if (!isApiClientError(error)) {
         setProblem({ kind: 'uncertain', message: UNCERTAIN_MESSAGE })
         return
@@ -143,6 +144,15 @@ export function useCreateOrder({ userId, onStaleQuote }: Options) {
           setProblem({
             kind: 'error',
             message: 'A cotação expirou. Revise os valores atualizados e confirme novamente.',
+          })
+          return
+        case 'WALLET_NOT_CONNECTED':
+          // O servidor não tem a conexão desta carteira (ex.: outra aba desconectou).
+          closeAttempt()
+          setWalletConnection(variables.input.walletId, 'disconnected')
+          setProblem({
+            kind: 'error',
+            message: 'A carteira não está conectada. Conecte-a e confirme novamente.',
           })
           return
         default:

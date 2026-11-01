@@ -185,6 +185,12 @@ export const walletApi = {
       { method: 'PATCH', url: `/wallets/${encodeURIComponent(walletId)}`, data: input },
       wallet.parse,
     ),
+  /** Desfaz a conexão no servidor simulado (o pedido passa a ser recusado com WALLET_NOT_CONNECTED). */
+  disconnect: (walletId: string) =>
+    request(
+      { method: 'POST', url: `/wallets/${encodeURIComponent(walletId)}/disconnect` },
+      walletConnection.parse,
+    ),
   /** Pede a conexão à carteira (aprovação simulada). Recusa = 409 WALLET_REFUSED. */
   connect: (walletId: string, input: WalletConnectInput = {}) =>
     request(

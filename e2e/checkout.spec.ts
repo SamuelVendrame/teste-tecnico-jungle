@@ -213,3 +213,56 @@ test.describe('Checkout', () => {
     await expect(page).toHaveURL(/\/checkout$/)
   })
 })
+
+test.describe('Conexão da carteira no servidor', () => {
+  test('POST /orders sem a carteira conectada responde 409 WALLET_NOT_CONNECTED', async ({
+    page,
+  }) => {
+    await resetMocks(page)
+    await loginViaApi(page, 'ana')
+    const result = await page.evaluate(async () => {
+      const raw = localStorage.getItem('kurio:session')
+      const token = raw ? (JSON.parse(raw) as { token: string }).token : ''
+      const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
+      const quoteRes = await fetch('/api/checkout/quote', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          items: [{ nftId: 'nft_001', editionId: 'nft_001-ed1', quantity: 1 }],
+          couponCode: null,
+          network: 'ethereum',
+        }),
+      })
+      const quote = (await quoteRes.json()) as { id: string; fingerprint: string }
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { ...headers, 'Idempotency-Key': 'e2e-not-connected-1' },
+        body: JSON.stringify({
+          quoteId: quote.id,
+          quoteFingerprint: quote.fingerprint,
+          walletId: 'wal_ana_primary',
+          network: 'ethereum',
+          collector: {
+            displayName: 'Ana Ribeiro',
+            username: 'ana_ribeiro',
+            profileName: 'Ana',
+            secondaryRef: '',
+            referralCode: 'KURIO-ANA',
+            email: 'ana@kurio.dev',
+            ensSuffix: '.eth',
+            ensName: 'anaribeiro',
+            note: '',
+          },
+        }),
+      })
+      return {
+        quoteStatus: quoteRes.status,
+        status: res.status,
+        body: (await res.json()) as { error?: { code: string } },
+      }
+    })
+    expect(result.quoteStatus).toBe(200)
+    expect(result.status).toBe(409)
+    expect(result.body.error?.code).toBe('WALLET_NOT_CONNECTED')
+  })
+})

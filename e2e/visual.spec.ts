@@ -72,6 +72,11 @@ test.describe('Regressão visual', () => {
     await settledQuoteTotal(page)
     await expect(reviewSection(page).getByText(SAGE.name)).toBeVisible()
     await settle(page)
+    // A barra fixa de total/confirmar sairia no meio da captura de página inteira;
+    // só para a foto ela entra no fluxo, no fim da coluna.
+    await page.getByTestId('checkout-bar').evaluate((el) => {
+      el.style.position = 'static'
+    })
 
     await expect(page).toHaveScreenshot('checkout.png', {
       fullPage: true,

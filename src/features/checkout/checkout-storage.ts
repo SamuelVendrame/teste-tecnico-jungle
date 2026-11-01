@@ -9,7 +9,7 @@
  *   navegador que ainda não chegou a estado terminal.
  *
  * Os três registros guardam o `userId` do dono e só são lidos pelo mesmo usuário:
- * dados pessoais (nome, e-mail, CPF) nunca aparecem para outra conta no mesmo
+ * dados pessoais (nome, e-mail, perfil do colecionador) nunca aparecem para outra conta no mesmo
  * navegador. `clearPrivateStorage` apaga tudo no logout e, na troca de usuário,
  * o que pertence a outra conta (ver `use-auth.ts`).
  */

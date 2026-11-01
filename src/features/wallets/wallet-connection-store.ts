@@ -83,12 +83,21 @@ export async function connectWallet(
   return next
 }
 
+/**
+ * Desconecta na hora no cliente e avisa o servidor simulado, que passa a recusar pedidos
+ * com esta carteira (409 WALLET_NOT_CONNECTED). A falha do aviso não muda o estado local.
+ */
+export function disconnectWallet(walletId: string) {
+  setWalletConnection(walletId, 'disconnected')
+  void walletApi.disconnect(walletId).catch(() => {})
+}
+
 /** Página de carteiras: conecta pela API; conectada, desconecta na hora. */
 export function toggleSimulatedConnection(walletId: string) {
   const current = getWalletConnection(walletId)
   if (current === 'connecting') return
   if (current === 'connected') {
-    setWalletConnection(walletId, 'disconnected')
+    disconnectWallet(walletId)
     return
   }
   void connectWallet(walletId)

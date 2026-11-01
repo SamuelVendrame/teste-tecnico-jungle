@@ -60,6 +60,15 @@ export const authHandlers = [
 
   route('post', '/auth/logout', ({ request }) => {
     const token = bearerToken(request)
+    const session = token ? getDb().sessions[token] : undefined
+    if (session) {
+      // Nenhuma carteira da conta continua "conectada" depois de sair.
+      const db = getDb()
+      for (const wallet of Object.values(db.wallets)) {
+        if (wallet.userId === session.userId) delete db.walletConnections[wallet.id]
+      }
+      commit()
+    }
     if (token) revokeSession(token)
     return noContent()
   }),

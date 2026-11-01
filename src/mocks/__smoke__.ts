@@ -88,6 +88,15 @@ const wallet = await call<Wallet>('POST', '/api/wallets', {
   },
 })
 assert(wallet.status === 201, 'carteira deve ser criada')
+const connection = await call<{ status: string }>(
+  'POST',
+  `/api/wallets/${wallet.body.id}/connect`,
+  {
+    token,
+    body: {},
+  },
+)
+assert(connection.status === 200, 'conexão da carteira deve ser aprovada')
 
 const before = getDb().nfts['nft_001']?.editions[0]?.available ?? -1
 const cart = await call<Cart>('POST', '/api/cart/items', {
