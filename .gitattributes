@@ -1,4 +1,6 @@
-* text=auto eol=lf
-*.png binary
-*.woff binary
-*.woff2 binary
+# Relatórios do Lighthouse e código gerado: fora da estatística de linguagens do GitHub
+# e colapsados nos diffs (linguist-generated).
+lighthouse/reports/*.html linguist-generated
+lighthouse/reports/*.json linguist-generated
+src/routeTree.gen.ts linguist-generated
+public/mockServiceWorker.js linguist-generated
