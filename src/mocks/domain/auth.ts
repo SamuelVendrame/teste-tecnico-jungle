@@ -40,14 +40,9 @@ export interface AuthContext {
 }
 
 /**
- * Resolve o usuário do header Authorization.
- * - Sem token: null (rota decide se é pública).
- * - Token desconhecido/expirado: 401 (o cliente marca a sessão como expirada).
- * - Cenário `session-expired`: a primeira requisição autenticada derruba a sessão.
- */
-/**
- * Encerra a sessão e desfaz as conexões de carteira da conta: sem sessão, nenhuma
- * carteira continua "conectada" no servidor simulado (expiração, cenário ou logout).
+ * Encerra a sessão e desfaz as conexões de carteira da conta (expiração, cenário ou
+ * logout). A limpeza é por conta, não por token: com a mesma conta aberta em duas abas,
+ * o fim da sessão numa delas desconecta as carteiras na outra também.
  */
 function dropSession(token: string): void {
   const db = getDb()
@@ -60,6 +55,12 @@ function dropSession(token: string): void {
   commit()
 }
 
+/**
+ * Resolve o usuário do header Authorization.
+ * - Sem token: null (rota decide se é pública).
+ * - Token desconhecido/expirado: 401 (o cliente marca a sessão como expirada).
+ * - Cenário `session-expired`: a primeira requisição autenticada derruba a sessão.
+ */
 export function optionalAuth(request: Request): AuthContext | null {
   const token = bearerToken(request)
   if (!token) return null
